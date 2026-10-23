@@ -3,17 +3,11 @@
 """Proyecto REP-NFU, grupo 52 — Sistema de Gestión "Valora Más" (DS N°8 MMA, 2026-2030).
 Python 3.11 / gurobipy 10.0.3+.
 
-Modelo de Complejidad Extrema (Nivel Quincenal) actualizado para el nuevo dataset 2026-2030:
-- Integración directa con el conversor `md_a_excel.py` y el libro `datos.xlsx` derivado de
-  `datos_logistica_nfu_chile_2026_2030.md`.
+Modelo actualizado para el nuevo dataset 2026-2030:
 - Trazabilidad total de la Región de Origen (Multi-commodity, 16 regiones de Chile).
 - Vehículos discretos (Camiones de 10t, 15t y 25t) con variables enteras para viajes.
-- Disgregación temporal extrema: 24 Quincenas operativas por año (2026 a 2030).
-- Cálculo explícito y reporte detallado del Valor Óptimo de la Función Objetivo en:
-  * Miles de CLP (`M$`)
-  * Millones de CLP (`MM$`)
-  * Pesos chilenos exactos (`CLP`)
-- Retorna reportes consolidados anuales exactos (Excel, CSV, resúmenes y archivo `.sol`).
+- Escala Temporal: Anual (removidas las quincenas para optimizar el tiempo de cómputo).
+- Cálculo explícito y reporte detallado del Valor Óptimo de la Función Objetivo.
 """
 
 import argparse
@@ -43,32 +37,19 @@ ESTADOS = {
 
 
 # =============================================================================
-# FUNCIONES DE CARGA, CONVERSIÓN AUTOMÁTICA DESDE MD Y LECTURA DE EXCEL
+# FUNCIONES DE CARGA Y LECTURA DE EXCEL
 # =============================================================================
 
-def ruta_datos(explicita=None, ruta_md=None):
-    """Localiza `datos.xlsx` o lo genera automáticamente desde `datos_logistica_nfu_chile_2026_2030.md` si se indica."""
+def ruta_datos(explicita=None):
+    """Localiza el archivo Excel de datos (`datos.xlsx`) o valida la ruta explícita provista."""
     base = Path(__file__).resolve().parent
-
-    # Si el usuario pasa un archivo .md o pide regenerar desde .md:
-    if ruta_md:
-        md_path = Path(ruta_md).expanduser().resolve()
-        if not md_path.is_file():
-            raise FileNotFoundError(f"No existe el archivo Markdown indicado: {md_path}")
-        from md_a_excel import convertir_md_a_excel
-        destino_xlsx = Path(explicita).expanduser().resolve() if explicita else (base / "datos.xlsx")
-        print(f"Generando '{destino_xlsx.name}' a partir de '{md_path.name}'...")
-        return convertir_md_a_excel(md_path, destino_xlsx)
 
     if explicita:
         ruta = Path(explicita).expanduser().resolve()
-        if ruta.suffix.lower() == ".md":
-            from md_a_excel import convertir_md_a_excel
-            destino_xlsx = ruta.with_name("datos.xlsx")
-            print(f"Convirtiendo '{ruta.name}' -> '{destino_xlsx.name}'...")
-            return convertir_md_a_excel(ruta, destino_xlsx)
         if not ruta.is_file():
-            raise FileNotFoundError(f"No existe el archivo de entrada: {ruta}")
+            raise FileNotFoundError(f"No existe el archivo Excel de entrada: {ruta}")
+        if ruta.suffix.lower() not in [".xlsx", ".xls", ".xlsm"]:
+            raise ValueError(f"El archivo debe ser una planilla Excel válida (.xlsx), recibido: '{ruta.name}'")
         return ruta
 
     candidatos = [
@@ -83,17 +64,9 @@ def ruta_datos(explicita=None, ruta_md=None):
         if r.is_file():
             return r
 
-    # Si no existe datos.xlsx pero está el archivo .md en la misma carpeta, generarlo automáticamente
-    md_candidato = base / "datos_logistica_nfu_chile_2026_2030.md"
-    if md_candidato.is_file():
-        from md_a_excel import convertir_md_a_excel
-        destino_xlsx = base / "datos.xlsx"
-        print(f"No se encontró datos.xlsx; generándolo automáticamente desde {md_candidato.name}...")
-        return convertir_md_a_excel(md_candidato, destino_xlsx)
-
     raise FileNotFoundError(
-        "No se encontró 'datos.xlsx' ni 'datos_logistica_nfu_chile_2026_2030.md'. "
-        "Ejecuta primero `python md_a_excel.py` o indica la ruta con `--datos`."
+        "No se encontró 'datos.xlsx' en las ubicaciones esperadas. "
+        "Asegúrate de colocar 'datos.xlsx' en el directorio del script o indicar su ubicación con '--datos ruta/al/archivo.xlsx'."
     )
 
 
@@ -261,29 +234,26 @@ def construir_modelo_extremo(d, salida, time_limit=TIME_LIMIT, mip_gap=MIP_GAP):
         "Camion_25t": {"cap": 25.0, "costo_f": 1.0},
     }
     V = list(VEHICULOS.keys())
-    Qu = list(range(1, 25))
-
     d.V = V
-    d.Qu = Qu
 
     # Variables de decisión binarias de habilitación / operación anual
     y = m.addVars(d.C, d.T, vtype=GRB.BINARY, name="y")
     w = m.addVars(d.P, d.K, d.T, vtype=GRB.BINARY, name="w")
 
-    # Variables enteras de número de viajes por tipo de camión y quincena
-    nx = m.addVars(d.R, d.C, V, d.T, Qu, vtype=GRB.INTEGER, lb=0, name="nx")
-    nz = m.addVars(d.R, d.P, V, d.T, Qu, vtype=GRB.INTEGER, lb=0, name="nz")
-    nf = m.addVars(d.R, d.C, d.P, V, d.T, Qu, vtype=GRB.INTEGER, lb=0, name="nf")
+    # Variables enteras de número de viajes por tipo de camión
+    nx = m.addVars(d.R, d.C, V, d.T, vtype=GRB.INTEGER, lb=0, name="nx")
+    nz = m.addVars(d.R, d.P, V, d.T, vtype=GRB.INTEGER, lb=0, name="nz")
+    nf = m.addVars(d.R, d.C, d.P, V, d.T, vtype=GRB.INTEGER, lb=0, name="nf")
 
     # Variables continuas de flujo (toneladas), procesamiento, inventario y déficits
-    x = m.addVars(d.R, d.C, V, d.T, Qu, lb=0, name="x")
-    z = m.addVars(d.R, d.P, V, d.T, Qu, lb=0, name="z")
-    f = m.addVars(d.R, d.C, d.P, V, d.T, Qu, lb=0, name="f")
-    v = m.addVars(d.R, d.P, d.K, d.T, Qu, lb=0, name="v")
-    s = m.addVars(d.R, d.C, d.T, Qu, lb=0, name="s")
+    x = m.addVars(d.R, d.C, V, d.T, lb=0, name="x")
+    z = m.addVars(d.R, d.P, V, d.T, lb=0, name="z")
+    f = m.addVars(d.R, d.C, d.P, V, d.T, lb=0, name="f")
+    v = m.addVars(d.R, d.P, d.K, d.T, lb=0, name="v")
+    s = m.addVars(d.R, d.C, d.T, lb=0, name="s")
 
-    dR = m.addVars(d.T, Qu, lb=0, name="dR")
-    dV = m.addVars(d.T, Qu, lb=0, name="dV")
+    dR = m.addVars(d.T, lb=0, name="dR")
+    dV = m.addVars(d.T, lb=0, name="dV")
     dQ = m.addVars(d.R, d.T, lb=0, name="dQ")
 
     anterior = {t: d.T[i - 1] if i else None for i, t in enumerate(d.T)}
@@ -297,27 +267,27 @@ def construir_modelo_extremo(d, salida, time_limit=TIME_LIMIT, mip_gap=MIP_GAP):
         "CF_C operacion fija centros": Q(d.cF[c] * y[c, t] for c in d.C for t in d.T),
         "CF_P operacion fija plantas": Q(d.cP[p, k] * w[p, k, t] for p in d.P for k in d.K for t in d.T),
         "CT_1 transporte region-acopio": Q(
-            d.cT1[o, c] * VEHICULOS[vh]["costo_f"] * x[o, c, vh, t, qu]
-            for o in d.R for c in d.C for vh in V for t in d.T for qu in Qu
+            d.cT1[o, c] * VEHICULOS[vh]["costo_f"] * x[o, c, vh, t]
+            for o in d.R for c in d.C for vh in V for t in d.T
         ),
         "CT_2 transporte acopio-planta": Q(
-            d.cT2[c, p] * VEHICULOS[vh]["costo_f"] * f[o, c, p, vh, t, qu]
-            for o in d.R for c in d.C for p in d.P for vh in V for t in d.T for qu in Qu
+            d.cT2[c, p] * VEHICULOS[vh]["costo_f"] * f[o, c, p, vh, t]
+            for o in d.R for c in d.C for p in d.P for vh in V for t in d.T
         ),
         "CT_3 transporte region-planta": Q(
-            d.cT3[o, p] * VEHICULOS[vh]["costo_f"] * z[o, p, vh, t, qu]
-            for o in d.R for p in d.P for vh in V for t in d.T for qu in Qu
+            d.cT3[o, p] * VEHICULOS[vh]["costo_f"] * z[o, p, vh, t]
+            for o in d.R for p in d.P for vh in V for t in d.T
         ),
         "CP_V procesamiento": Q(
-            d.cV[k] * v[o, p, k, t, qu]
-            for o in d.R for p in d.P for k in d.K for t in d.T for qu in Qu
+            d.cV[k] * v[o, p, k, t]
+            for o in d.R for p in d.P for k in d.K for t in d.T
         ),
         "CA_S almacenaje": Q(
-            (d.h[c] / 24.0) * s[o, c, t, qu]
-            for o in d.R for c in d.C for t in d.T for qu in Qu
+            d.h[c] * s[o, c, t]
+            for o in d.R for c in d.C for t in d.T
         ),
         "CP_M penalizaciones deficit": (
-            Q(d.muR[t] * dR[t, qu] + d.muV[t] * dV[t, qu] for t in d.T for qu in Qu)
+            Q(d.muR[t] * dR[t] + d.muV[t] * dV[t] for t in d.T)
             + Q(d.muQ[t] * dQ[o, t] for o in d.R for t in d.T)
         ),
     }
@@ -326,83 +296,75 @@ def construir_modelo_extremo(d, salida, time_limit=TIME_LIMIT, mip_gap=MIP_GAP):
 
     # Restricciones de capacidad vehicular discreta
     m.addConstrs(
-        (x[o, c, vh, t, qu] <= VEHICULOS[vh]["cap"] * nx[o, c, vh, t, qu]
-         for o in d.R for c in d.C for vh in V for t in d.T for qu in Qu),
+        (x[o, c, vh, t] <= VEHICULOS[vh]["cap"] * nx[o, c, vh, t]
+         for o in d.R for c in d.C for vh in V for t in d.T),
         "R_RutaX",
     )
     m.addConstrs(
-        (z[o, p, vh, t, qu] <= VEHICULOS[vh]["cap"] * nz[o, p, vh, t, qu]
-         for o in d.R for p in d.P for vh in V for t in d.T for qu in Qu),
+        (z[o, p, vh, t] <= VEHICULOS[vh]["cap"] * nz[o, p, vh, t]
+         for o in d.R for p in d.P for vh in V for t in d.T),
         "R_RutaZ",
     )
     m.addConstrs(
-        (f[o, c, p, vh, t, qu] <= VEHICULOS[vh]["cap"] * nf[o, c, p, vh, t, qu]
-         for o in d.R for c in d.C for p in d.P for vh in V for t in d.T for qu in Qu),
+        (f[o, c, p, vh, t] <= VEHICULOS[vh]["cap"] * nf[o, c, p, vh, t]
+         for o in d.R for c in d.C for p in d.P for vh in V for t in d.T),
         "R_RutaF",
     )
 
-    # R1: Disponibilidad de generación quincenal de NFU por región
+    # R1: Disponibilidad anual de NFU por región
     m.addConstrs(
-        (Q(x[r, c, vh, t, qu] for c in d.C for vh in V)
-         + Q(z[r, p, vh, t, qu] for p in d.P for vh in V)
-         <= d.gen[r, t] / 24.0
-         for r in d.R for t in d.T for qu in Qu),
+        (Q(x[r, c, vh, t] for c in d.C for vh in V)
+         + Q(z[r, p, vh, t] for p in d.P for vh in V)
+         <= d.gen[r, t]
+         for r in d.R for t in d.T),
         "R1",
     )
 
-    # R2a, R2b, R3: Capacidad de recepción, despacho y límite sanitario contra incendios en Centros de Acopio
+    # R2a, R2b, R3: Capacidad de recepción, despacho y límite sanitario contra incendios
     m.addConstrs(
-        (Q(x[o, c, vh, t, qu] for o in d.R for vh in V) <= (d.aC[c] / 24.0) * y[c, t]
-         for c in d.C for t in d.T for qu in Qu),
+        (Q(x[o, c, vh, t] for o in d.R for vh in V) <= d.aC[c] * y[c, t]
+         for c in d.C for t in d.T),
         "R2a",
     )
     m.addConstrs(
-        (Q(f[o, c, p, vh, t, qu] for o in d.R for p in d.P for vh in V) <= (d.bC[c] / 24.0) * y[c, t]
-         for c in d.C for t in d.T for qu in Qu),
+        (Q(f[o, c, p, vh, t] for o in d.R for p in d.P for vh in V) <= d.bC[c] * y[c, t]
+         for c in d.C for t in d.T),
         "R2b",
     )
     m.addConstrs(
-        (Q(s[o, c, t, qu] for o in d.R) <= d.sM[c] * y[c, t]
-         for c in d.C for t in d.T for qu in Qu),
+        (Q(s[o, c, t] for o in d.R) <= d.sM[c] * y[c, t]
+         for c in d.C for t in d.T),
         "R3",
     )
 
-    # R4: Conservación de flujo e inventario quincenal en Centros de Acopio (incluyendo inventario inicial s0)
+    # R4: Conservación de flujo e inventario anual en Centros de Acopio
     gen_total_t0 = sum(d.gen[r, d.T[0]] for r in d.R)
     for o in d.R:
         prop_o = d.gen[o, d.T[0]] / gen_total_t0 if gen_total_t0 > 0 else (1.0 / len(d.R))
         for c in d.C:
             for t in d.T:
-                for qu in Qu:
-                    if qu > 1:
-                        previo = s[o, c, t, qu - 1]
-                    else:
-                        previo = (
-                            s[o, c, anterior[t], 24]
-                            if anterior[t] is not None
-                            else (d.s0[c] * prop_o)
-                        )
-                    m.addConstr(
-                        s[o, c, t, qu]
-                        == previo
-                        + Q(x[o, c, vh, t, qu] for vh in V)
-                        - Q(f[o, c, p, vh, t, qu] for p in d.P for vh in V),
-                        f"R4_{o}_{c}_{t}_{qu}",
-                    )
+                previo = s[o, c, anterior[t]] if anterior[t] is not None else (d.s0[c] * prop_o)
+                m.addConstr(
+                    s[o, c, t]
+                    == previo
+                    + Q(x[o, c, vh, t] for vh in V)
+                    - Q(f[o, c, p, vh, t] for p in d.P for vh in V),
+                    f"R4_{o}_{c}_{t}",
+                )
 
-    # R5: Balance de recepción y procesamiento en Plantas por región de origen
+    # R5: Balance de recepción y procesamiento anual en Plantas por región de origen
     m.addConstrs(
-        (Q(v[o, p, k, t, qu] for k in d.K)
-         == Q(f[o, c, p, vh, t, qu] for c in d.C for vh in V)
-         + Q(z[o, p, vh, t, qu] for vh in V)
-         for o in d.R for p in d.P for t in d.T for qu in Qu),
+        (Q(v[o, p, k, t] for k in d.K)
+         == Q(f[o, c, p, vh, t] for c in d.C for vh in V)
+         + Q(z[o, p, vh, t] for vh in V)
+         for o in d.R for p in d.P for t in d.T),
         "R5",
     )
 
-    # R6, R6b, R6c: Capacidad técnica efectiva, compatibilidad tecnológica y máximo de líneas por Planta
+    # R6, R6b, R6c: Capacidad técnica efectiva, compatibilidad y máximo de líneas
     m.addConstrs(
-        (Q(v[o, p, k, t, qu] for o in d.R) <= (d.aP[p, k] / 24.0) * w[p, k, t]
-         for p in d.P for k in d.K for t in d.T for qu in Qu),
+        (Q(v[o, p, k, t] for o in d.R) <= d.aP[p, k] * w[p, k, t]
+         for p in d.P for k in d.K for t in d.T),
         "R6",
     )
     m.addConstrs(
@@ -414,39 +376,39 @@ def construir_modelo_extremo(d, salida, time_limit=TIME_LIMIT, mip_gap=MIP_GAP):
         "R6c",
     )
 
-    # R7, R8, R12 (Metas Nacionales de Recolección, Valorización y 60% Valorización Material) y R9 (Cuotas Regionales DS8)
+    # R7, R8, R12 (Metas Nacionales) y R9 (Cuotas Regionales DS8)
     for t in d.T:
-        gen_qu_total = sum(d.gen[r, t] for r in d.R) / 24.0
+        gen_anual_total = sum(d.gen[r, t] for r in d.R)
         alpha_t = d.alpha_t.get(t, d.alpha)
-        for qu in Qu:
-            m.addConstr(
-                Q(x[o, c, vh, t, qu] for o in d.R for c in d.C for vh in V)
-                + Q(z[o, p, vh, t, qu] for o in d.R for p in d.P for vh in V)
-                + dR[t, qu]
-                >= d.mr[t] * gen_qu_total,
-                f"R7_{t}_{qu}",
-            )
-            m.addConstr(
-                Q(v[o, p, k, t, qu] for o in d.R for p in d.P for k in d.K)
-                + dV[t, qu]
-                >= d.mv[t] * gen_qu_total,
-                f"R8_{t}_{qu}",
-            )
-            m.addConstr(
-                Q(v[o, p, k, t, qu] for o in d.R for p in d.P for k in d.KM)
-                >= alpha_t * Q(v[o, p, k, t, qu] for o in d.R for p in d.P for k in d.K),
-                f"R12_{t}_{qu}",
-            )
+        
+        m.addConstr(
+            Q(x[o, c, vh, t] for o in d.R for c in d.C for vh in V)
+            + Q(z[o, p, vh, t] for o in d.R for p in d.P for vh in V)
+            + dR[t]
+            >= d.mr[t] * gen_anual_total,
+            f"R7_{t}",
+        )
+        m.addConstr(
+            Q(v[o, p, k, t] for o in d.R for p in d.P for k in d.K)
+            + dV[t]
+            >= d.mv[t] * gen_anual_total,
+            f"R8_{t}",
+        )
+        m.addConstr(
+            Q(v[o, p, k, t] for o in d.R for p in d.P for k in d.KM)
+            >= alpha_t * Q(v[o, p, k, t] for o in d.R for p in d.P for k in d.K),
+            f"R12_{t}",
+        )
         for r in d.R:
             m.addConstr(
-                Q(x[r, c, vh, t, qu] for c in d.C for vh in V for qu in Qu)
-                + Q(z[r, p, vh, t, qu] for p in d.P for vh in V for qu in Qu)
+                Q(x[r, c, vh, t] for c in d.C for vh in V)
+                + Q(z[r, p, vh, t] for p in d.P for vh in V)
                 + dQ[r, t]
-                >= d.qr[r] * sum(d.gen[o, t] for o in d.R),
+                >= d.qr[r] * gen_anual_total,
                 f"R9_{r}_{t}",
             )
 
-    # R10a, R10b: Permanencia de apertura de centros y líneas habilitadas en el horizonte 2026-2030
+    # R10a, R10b: Permanencia de apertura de centros y líneas habilitadas
     for t in d.T[1:]:
         m.addConstrs((y[c, t] >= y[c, anterior[t]] for c in d.C), f"R10a_{t}")
         m.addConstrs((w[p, k, t] >= w[p, k, anterior[t]] for p in d.P for k in d.K), f"R10b_{t}")
@@ -611,18 +573,18 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
             alpha_t = d.alpha_t.get(t, d.alpha)
 
             rec = (
-                sum(X("x", o, c, vh, t, qu) for o in d.R for c in d.C for vh in d.V for qu in d.Qu)
-                + sum(X("z", o, p, vh, t, qu) for o in d.R for p in d.P for vh in d.V for qu in d.Qu)
+                sum(X("x", o, c, vh, t) for o in d.R for c in d.C for vh in d.V)
+                + sum(X("z", o, p, vh, t) for o in d.R for p in d.P for vh in d.V)
             )
-            val = sum(X("v", o, p, k, t, qu) for o in d.R for p in d.P for k in d.K for qu in d.Qu)
-            mat = sum(X("v", o, p, k, t, qu) for o in d.R for p in d.P for k in d.KM for qu in d.Qu)
+            val = sum(X("v", o, p, k, t) for o in d.R for p in d.P for k in d.K)
+            mat = sum(X("v", o, p, k, t) for o in d.R for p in d.P for k in d.KM)
 
             stock_previo = (
-                sum(X("s", o, c, anterior[t], 24) for o in d.R for c in d.C)
+                sum(X("s", o, c, anterior[t]) for o in d.R for c in d.C)
                 if anterior[t] is not None
                 else sum(d.s0[c] for c in d.C)
             )
-            stock_final = sum(X("s", o, c, t, 24) for o in d.R for c in d.C)
+            stock_final = sum(X("s", o, c, t) for o in d.R for c in d.C)
             residuo = rec + stock_previo - val - stock_final
 
             balances.append(
@@ -643,11 +605,11 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
                     meta_rec_ton=d.mr[t] * gen,
                     recoleccion_ton=rec,
                     pct_recoleccion=100.0 * rec / gen,
-                    deficit_rec_ton=sum(X("dR", t, qu) for qu in d.Qu),
+                    deficit_rec_ton=X("dR", t),
                     meta_val_ton=d.mv[t] * gen,
                     valorizacion_ton=val,
                     pct_valorizacion=100.0 * val / gen,
-                    deficit_val_ton=sum(X("dV", t, qu) for qu in d.Qu),
+                    deficit_val_ton=X("dV", t),
                     valorizacion_material_ton=mat,
                     valorizacion_energetica_ton=val - mat,
                     pct_material_sobre_valorizado=100.0 * mat / val if val > TOL_TON else None,
@@ -659,8 +621,8 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
 
             for r in d.R:
                 recogido = (
-                    sum(X("x", r, c, vh, t, qu) for c in d.C for vh in d.V for qu in d.Qu)
-                    + sum(X("z", r, p, vh, t, qu) for p in d.P for vh in d.V for qu in d.Qu)
+                    sum(X("x", r, c, vh, t) for c in d.C for vh in d.V)
+                    + sum(X("z", r, p, vh, t) for p in d.P for vh in d.V)
                 )
                 cuotas.append(
                     dict(
@@ -677,8 +639,8 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
             for c in d.C:
                 activo = X("y", c, t)
                 apertura = activo - (X("y", c, anterior[t]) if anterior[t] is not None else 0)
-                entrada = sum(X("x", o, c, vh, t, qu) for o in d.R for vh in d.V for qu in d.Qu)
-                despacho = sum(X("f", o, c, p, vh, t, qu) for o in d.R for p in d.P for vh in d.V for qu in d.Qu)
+                entrada = sum(X("x", o, c, vh, t) for o in d.R for vh in d.V)
+                despacho = sum(X("f", o, c, p, vh, t) for o in d.R for p in d.P for vh in d.V)
                 acopios.append(
                     dict(
                         anio=t,
@@ -692,7 +654,7 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
                         flujo_salida_ton=despacho,
                         uso_salida_pct=100.0 * despacho / (d.bC[c] * activo) if d.bC[c] * activo > TOL_TON else None,
                         inv_max_ton=d.sM[c] * activo,
-                        inventario_final_ton=sum(X("s", o, c, t, 24) for o in d.R),
+                        inventario_final_ton=sum(X("s", o, c, t) for o in d.R),
                     )
                 )
                 aperturas.append(
@@ -711,7 +673,7 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
                 for k in d.K:
                     activo = X("w", p, k, t)
                     apertura = activo - (X("w", p, k, anterior[t]) if anterior[t] is not None else 0)
-                    proc = sum(X("v", o, p, k, t, qu) for o in d.R for qu in d.Qu)
+                    proc = sum(X("v", o, p, k, t) for o in d.R)
                     plantas.append(
                         dict(
                             anio=t,
@@ -741,7 +703,7 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
 
             for r in d.R:
                 for c in d.C:
-                    flujo = sum(X("x", r, c, vh, t, qu) for vh in d.V for qu in d.Qu)
+                    flujo = sum(X("x", r, c, vh, t) for vh in d.V)
                     if flujo > TOL_TON:
                         flujos.append(
                             dict(
@@ -758,7 +720,7 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
                         )
             for c in d.C:
                 for p in d.P:
-                    flujo = sum(X("f", o, c, p, vh, t, qu) for o in d.R for vh in d.V for qu in d.Qu)
+                    flujo = sum(X("f", o, c, p, vh, t) for o in d.R for vh in d.V)
                     if flujo > TOL_TON:
                         flujos.append(
                             dict(
@@ -775,7 +737,7 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
                         )
             for r in d.R:
                 for p in d.P:
-                    flujo = sum(X("z", r, p, vh, t, qu) for vh in d.V for qu in d.Qu)
+                    flujo = sum(X("z", r, p, vh, t) for vh in d.V)
                     if flujo > TOL_TON:
                         flujos.append(
                             dict(
@@ -827,19 +789,13 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Red REP-NFU ('Valora Más' 2026-2030) - Modelo Gurobi de Complejidad Extrema"
+        description="Red REP-NFU ('Valora Más' 2026-2030) - Modelo Gurobi de Complejidad Extrema (Anual)"
     )
     parser.add_argument(
         "-d", "--datos",
         type=str,
         default=None,
-        help="Ruta explícita a 'datos.xlsx' (o al archivo '.md' para convertirlo automáticamente).",
-    )
-    parser.add_argument(
-        "--from-md",
-        type=str,
-        default=None,
-        help="Ruta al archivo Markdown para regenerar 'datos.xlsx' antes de construir el modelo.",
+        help="Ruta explícita al archivo Excel de entrada (por defecto busca 'datos.xlsx').",
     )
     parser.add_argument(
         "--time-limit",
@@ -855,7 +811,7 @@ def main():
     )
     args = parser.parse_args()
 
-    ruta = ruta_datos(explicita=args.datos, ruta_md=args.from_md)
+    ruta = ruta_datos(explicita=args.datos)
     d = cargar_datos(ruta)
     print(
         f"Dataset cargado desde '{ruta.name}': "
@@ -865,7 +821,7 @@ def main():
     base = Path(__file__).resolve().parent
     raiz = base.parent if base.name in ["Script Python", "Script_Python"] else base
     carpeta = raiz / "Analisis de Excels"
-    salida = carpeta / datetime.now().astimezone().strftime("ejecucion_extrema_%Y%m%d_%H%M%S_%f")
+    salida = carpeta / datetime.now().astimezone().strftime("ejecucion_%Y%m%d_%H%M%S_%f")
     salida.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ruta, salida / "entrada_datos.xlsx")
 
