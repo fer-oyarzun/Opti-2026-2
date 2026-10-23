@@ -1,0 +1,10 @@
+Componente,Costo_M_CLP,Pct
+CP_V procesamiento variable plantas,27680143.51632,58.527815814050456
+CF_P operacion fija plantas,10145000.0,21.45092532065315
+CT_3 transporte directo region-planta,3618992.3701599995,7.652117798749698
+CT_1 transporte primario region-acopio,2192257.630902501,4.6353824272175
+CT_2 transporte troncal acopio-planta,1469524.6211396016,3.1072117205447713
+CF_C operacion fija centros acopio,1433000.0,3.029982847165694
+CA_S almacenaje e inventario sanitario,755078.9658000009,1.596564071618712
+CP_M multas deficit normativo DS8,4.780531526193954e-09,1.0108114811376494e-14
+TOTAL,47293997.10432211,100.0

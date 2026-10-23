@@ -1,0 +1,12 @@
+Estado: OPTIMAL (código 2).
+Tiempo de optimización: 1.120 s; límite: 1800 s.
+Variables: 1380; restricciones: 649; soluciones almacenadas: 6.
+Origen de inversiones: Simulacion de prueba.
+Mejor solución: 57,966,968.854027 M$ (57,966,968,854.03 CLP).
+Mejor cota: 57,966,968.854027 M$.
+GAP relativo: 0.000000 %.
+Optimalidad certificada dentro de la tolerancia configurada.
+Cumplimiento normativo sin déficits: True.
+Déficits acumulados (ton): recolección=0.000000; valorización=0.000000; cuotas=0.000000.
+Diferencia al reconstruir FO: 0.00000001 M$.
+Mayor residuo de balance global: 0.00000000 ton.

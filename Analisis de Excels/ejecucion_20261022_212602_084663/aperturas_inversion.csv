@@ -1,0 +1,131 @@
+﻿anio,tipo,instalacion,tecnologia,activo,apertura,inversion_M_CLP
+2026,Centro,C1,,0,0,0.0
+2026,Centro,C2,,0,0,0.0
+2026,Centro,C3,,1,1,174000.0
+2026,Centro,C4,,0,0,0.0
+2026,Centro,C5,,0,0,0.0
+2026,Centro,C6,,1,1,186000.0
+2026,Linea de planta,P1,K1,1,1,925000.0
+2026,Linea de planta,P1,K2,0,0,0.0
+2026,Linea de planta,P1,K3,0,0,0.0
+2026,Linea de planta,P1,K4,0,0,0.0
+2026,Linea de planta,P2,K1,0,0,0.0
+2026,Linea de planta,P2,K2,0,0,-0.0
+2026,Linea de planta,P2,K3,1,1,1150000.0
+2026,Linea de planta,P2,K4,0,0,-0.0
+2026,Linea de planta,P3,K1,0,0,-0.0
+2026,Linea de planta,P3,K2,1,1,2050000.0
+2026,Linea de planta,P3,K3,1,1,1325000.0
+2026,Linea de planta,P3,K4,0,0,-0.0
+2026,Linea de planta,P4,K1,0,0,-0.0
+2026,Linea de planta,P4,K2,0,0,0.0
+2026,Linea de planta,P4,K3,1,1,1100000.0
+2026,Linea de planta,P4,K4,0,0,0.0
+2026,Linea de planta,P5,K1,0,0,0.0
+2026,Linea de planta,P5,K2,1,1,1675000.0
+2026,Linea de planta,P5,K3,0,0,0.0
+2026,Linea de planta,P5,K4,0,0,-0.0
+2027,Centro,C1,,0,0,0.0
+2027,Centro,C2,,0,0,0.0
+2027,Centro,C3,,1,0,0.0
+2027,Centro,C4,,0,0,-0.0
+2027,Centro,C5,,0,0,0.0
+2027,Centro,C6,,1,0,0.0
+2027,Linea de planta,P1,K1,1,0,0.0
+2027,Linea de planta,P1,K2,0,0,0.0
+2027,Linea de planta,P1,K3,0,0,0.0
+2027,Linea de planta,P1,K4,0,0,0.0
+2027,Linea de planta,P2,K1,0,0,0.0
+2027,Linea de planta,P2,K2,0,0,0.0
+2027,Linea de planta,P2,K3,1,0,0.0
+2027,Linea de planta,P2,K4,0,0,0.0
+2027,Linea de planta,P3,K1,1,1,1100000.0
+2027,Linea de planta,P3,K2,1,0,0.0
+2027,Linea de planta,P3,K3,1,0,0.0
+2027,Linea de planta,P3,K4,0,0,0.0
+2027,Linea de planta,P4,K1,0,0,0.0
+2027,Linea de planta,P4,K2,0,0,0.0
+2027,Linea de planta,P4,K3,1,0,0.0
+2027,Linea de planta,P4,K4,0,0,0.0
+2027,Linea de planta,P5,K1,0,0,0.0
+2027,Linea de planta,P5,K2,1,0,0.0
+2027,Linea de planta,P5,K3,0,0,0.0
+2027,Linea de planta,P5,K4,0,0,0.0
+2028,Centro,C1,,0,0,0.0
+2028,Centro,C2,,0,0,0.0
+2028,Centro,C3,,1,0,0.0
+2028,Centro,C4,,0,0,0.0
+2028,Centro,C5,,0,0,0.0
+2028,Centro,C6,,1,0,0.0
+2028,Linea de planta,P1,K1,1,0,0.0
+2028,Linea de planta,P1,K2,0,0,-0.0
+2028,Linea de planta,P1,K3,0,0,0.0
+2028,Linea de planta,P1,K4,0,0,0.0
+2028,Linea de planta,P2,K1,0,0,0.0
+2028,Linea de planta,P2,K2,0,0,0.0
+2028,Linea de planta,P2,K3,1,0,0.0
+2028,Linea de planta,P2,K4,0,0,0.0
+2028,Linea de planta,P3,K1,1,0,0.0
+2028,Linea de planta,P3,K2,1,0,0.0
+2028,Linea de planta,P3,K3,1,0,0.0
+2028,Linea de planta,P3,K4,0,0,0.0
+2028,Linea de planta,P4,K1,0,0,0.0
+2028,Linea de planta,P4,K2,0,0,0.0
+2028,Linea de planta,P4,K3,1,0,0.0
+2028,Linea de planta,P4,K4,0,0,0.0
+2028,Linea de planta,P5,K1,0,0,0.0
+2028,Linea de planta,P5,K2,1,0,0.0
+2028,Linea de planta,P5,K3,0,0,0.0
+2028,Linea de planta,P5,K4,0,0,0.0
+2029,Centro,C1,,0,0,0.0
+2029,Centro,C2,,0,0,0.0
+2029,Centro,C3,,1,0,0.0
+2029,Centro,C4,,0,0,0.0
+2029,Centro,C5,,0,0,0.0
+2029,Centro,C6,,1,0,0.0
+2029,Linea de planta,P1,K1,1,0,0.0
+2029,Linea de planta,P1,K2,0,0,0.0
+2029,Linea de planta,P1,K3,0,0,0.0
+2029,Linea de planta,P1,K4,0,0,-0.0
+2029,Linea de planta,P2,K1,0,0,0.0
+2029,Linea de planta,P2,K2,0,0,0.0
+2029,Linea de planta,P2,K3,1,0,0.0
+2029,Linea de planta,P2,K4,0,0,0.0
+2029,Linea de planta,P3,K1,1,0,0.0
+2029,Linea de planta,P3,K2,1,0,0.0
+2029,Linea de planta,P3,K3,1,0,0.0
+2029,Linea de planta,P3,K4,0,0,-0.0
+2029,Linea de planta,P4,K1,0,0,-0.0
+2029,Linea de planta,P4,K2,0,0,0.0
+2029,Linea de planta,P4,K3,1,0,0.0
+2029,Linea de planta,P4,K4,0,0,0.0
+2029,Linea de planta,P5,K1,0,0,0.0
+2029,Linea de planta,P5,K2,1,0,0.0
+2029,Linea de planta,P5,K3,0,0,0.0
+2029,Linea de planta,P5,K4,0,0,0.0
+2030,Centro,C1,,0,0,0.0
+2030,Centro,C2,,0,0,0.0
+2030,Centro,C3,,1,0,0.0
+2030,Centro,C4,,0,0,0.0
+2030,Centro,C5,,0,0,-0.0
+2030,Centro,C6,,1,0,0.0
+2030,Linea de planta,P1,K1,1,0,0.0
+2030,Linea de planta,P1,K2,0,0,0.0
+2030,Linea de planta,P1,K3,0,0,0.0
+2030,Linea de planta,P1,K4,0,0,0.0
+2030,Linea de planta,P2,K1,0,0,0.0
+2030,Linea de planta,P2,K2,0,0,0.0
+2030,Linea de planta,P2,K3,1,0,0.0
+2030,Linea de planta,P2,K4,0,0,0.0
+2030,Linea de planta,P3,K1,1,0,0.0
+2030,Linea de planta,P3,K2,1,0,0.0
+2030,Linea de planta,P3,K3,1,0,0.0
+2030,Linea de planta,P3,K4,0,0,0.0
+2030,Linea de planta,P4,K1,0,0,0.0
+2030,Linea de planta,P4,K2,1,1,1475000.0
+2030,Linea de planta,P4,K3,1,0,0.0
+2030,Linea de planta,P4,K4,0,0,0.0
+2030,Linea de planta,P5,K1,0,0,0.0
+2030,Linea de planta,P5,K2,1,0,0.0
+2030,Linea de planta,P5,K3,0,0,0.0
+2030,Linea de planta,P5,K4,0,0,0.0
