@@ -4,6 +4,8 @@ Ejecutar: python main.py
 Validar Excel sin resolver: python main.py --validar-datos
 Unidades de costos: M$ = miles de pesos chilenos; MM$ = millones de pesos.
 Las inversiones de la instancia adjunta son supuestos de PRUEBA editables.
+Oferta regional g_rt = p_r * G_t; base de metas B_t = theta * G_t.
+Usar el datos.xlsx actualizado, con la hoja Oferta_Base.
 """
 
 import argparse

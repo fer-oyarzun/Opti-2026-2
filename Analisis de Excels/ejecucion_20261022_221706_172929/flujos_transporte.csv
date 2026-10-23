@@ -1,0 +1,122 @@
+﻿anio,tramo,origen_id,origen,destino_id,destino,distancia_km,costo_unit_M_CLP,toneladas
+2026,T1_Region_Acopio,R01,Arica y Parinacota,C1,CA Iquique (Norte Grande),236.4,18.5,1308.9137297663951
+2026,T1_Region_Acopio,R02,Tarapacá,C1,CA Iquique (Norte Grande),35.0,7.42,3691.086270233605
+2026,T1_Region_Acopio,R03,Antofagasta,C2,CA Antofagasta (Norte),35.0,7.42,4066.6795099568362
+2026,T1_Region_Acopio,R04,Atacama,C2,CA Antofagasta (Norte),504.3,33.24,2397.808529811353
+2026,T1_Region_Acopio,R05,Coquimbo,C3,CA Coquimbo (Norte Chico),35.0,7.42,3615.51196023181
+2026,T1_Region_Acopio,R10,Ñuble,C5,CA Coronel (Biobío),124.9,12.37,2358.7200000000003
+2026,T1_Region_Acopio,R11,Biobío,C5,CA Coronel (Biobío),35.0,7.42,4186.740000000014
+2026,T1_Region_Acopio,R12,La Araucanía,C5,CA Coronel (Biobío),240.5,18.73,3832.9200000000014
+2026,T1_Region_Acopio,R13,Los Ríos,C5,CA Coronel (Biobío),379.8,26.39,1621.6200000000001
+2026,T1_Region_Acopio,R14,Los Lagos,C6,CA Puerto Montt (Sur-Austral),35.0,7.42,3980.340000000008
+2026,T1_Region_Acopio,R15,Aysén,C6,CA Puerto Montt (Sur-Austral),563.6,36.5,737.1
+2026,T1_Region_Acopio,R16,Magallanes,C6,CA Puerto Montt (Sur-Austral),1597.2,93.35,1031.9399999999998
+2026,T2_Acopio_Planta,C1,CA Iquique (Norte Grande),P1,Planta Mejillones (Antofagasta),393.3,17.09,5000.0
+2026,T2_Acopio_Planta,C2,CA Antofagasta (Norte),P1,Planta Mejillones (Antofagasta),74.9,6.9,6464.48803976819
+2026,T2_Acopio_Planta,C3,CA Coquimbo (Norte Chico),P1,Planta Mejillones (Antofagasta),928.0,34.2,3615.51196023181
+2026,T2_Acopio_Planta,C5,CA Coronel (Biobío),P5,Planta Talcahuano (Biobío),40.6,5.8,12000.00000000001
+2026,T2_Acopio_Planta,C6,CA Puerto Montt (Sur-Austral),P5,Planta Talcahuano (Biobío),644.9,25.14,5749.380000000007
+2026,T3_Region_Planta_Directo,R06,Valparaíso,P2,Planta La Calera (Valparaíso),59.1,17.61,15639.141694880496
+2026,T3_Region_Planta_Directo,R07,Metropolitana,P2,Planta La Calera (Valparaíso),108.6,22.32,3210.8583051195037
+2026,T3_Region_Planta_Directo,R07,Metropolitana,P3,Planta Tiltil / Polpaico (RM),57.1,17.42,36250.0
+2026,T3_Region_Planta_Directo,R08,O'Higgins,P4,Planta Teno (Maule),105.9,22.06,5888.880602753881
+2026,T3_Region_Planta_Directo,R09,Maule,P4,Planta Teno (Maule),93.2,20.85,12091.119397246119
+2026,T3_Region_Planta_Directo,R11,Biobío,P5,Planta Talcahuano (Biobío),35.0,15.32,2260.6199999999844
+2027,T1_Region_Acopio,R01,Arica y Parinacota,C1,CA Iquique (Norte Grande),236.4,18.5,1216.636573010555
+2027,T1_Region_Acopio,R02,Tarapacá,C1,CA Iquique (Norte Grande),35.0,7.42,3783.363426989445
+2027,T1_Region_Acopio,R03,Antofagasta,C2,CA Antofagasta (Norte),35.0,7.42,4168.346497705757
+2027,T1_Region_Acopio,R04,Atacama,C2,CA Antofagasta (Norte),504.3,33.24,2457.753743056637
+2027,T1_Region_Acopio,R05,Coquimbo,C3,CA Coquimbo (Norte Chico),35.0,7.42,3453.899759237603
+2027,T1_Region_Acopio,R10,Ñuble,C5,CA Coronel (Biobío),124.9,12.37,2417.688
+2027,T1_Region_Acopio,R11,Biobío,C5,CA Coronel (Biobío),35.0,7.42,3991.408499999992
+2027,T1_Region_Acopio,R12,La Araucanía,C5,CA Coronel (Biobío),240.5,18.73,3928.742999999997
+2027,T1_Region_Acopio,R13,Los Ríos,C5,CA Coronel (Biobío),379.8,26.39,1662.1605000000002
+2027,T1_Region_Acopio,R14,Los Lagos,C6,CA Puerto Montt (Sur-Austral),35.0,7.42,4079.8485000000014
+2027,T1_Region_Acopio,R15,Aysén,C6,CA Puerto Montt (Sur-Austral),563.6,36.5,755.5275
+2027,T1_Region_Acopio,R16,Magallanes,C6,CA Puerto Montt (Sur-Austral),1597.2,93.35,1057.7385
+2027,T2_Acopio_Planta,C1,CA Iquique (Norte Grande),P1,Planta Mejillones (Antofagasta),393.3,17.09,5000.0
+2027,T2_Acopio_Planta,C2,CA Antofagasta (Norte),P1,Planta Mejillones (Antofagasta),74.9,6.9,6626.100240762396
+2027,T2_Acopio_Planta,C3,CA Coquimbo (Norte Chico),P1,Planta Mejillones (Antofagasta),928.0,34.2,3453.899759237603
+2027,T2_Acopio_Planta,C5,CA Coronel (Biobío),P5,Planta Talcahuano (Biobío),40.6,5.8,11999.999999999987
+2027,T2_Acopio_Planta,C6,CA Puerto Montt (Sur-Austral),P4,Planta Teno (Maule),915.3,33.79,238.13700000000063
+2027,T2_Acopio_Planta,C6,CA Puerto Montt (Sur-Austral),P5,Planta Talcahuano (Biobío),644.9,25.14,5654.977500000001
+2027,T3_Region_Planta_Directo,R06,Valparaíso,P2,Planta La Calera (Valparaíso),59.1,17.61,16030.12023725251
+2027,T3_Region_Planta_Directo,R07,Metropolitana,P2,Planta La Calera (Valparaíso),108.6,22.32,2819.8797627474905
+2027,T3_Region_Planta_Directo,R07,Metropolitana,P3,Planta Tiltil / Polpaico (RM),57.1,17.42,36250.0
+2027,T3_Region_Planta_Directo,R08,O'Higgins,P4,Planta Teno (Maule),105.9,22.06,5348.465617822727
+2027,T3_Region_Planta_Directo,R09,Maule,P4,Planta Teno (Maule),93.2,20.85,12393.397382177272
+2027,T3_Region_Planta_Directo,R11,Biobío,P5,Planta Talcahuano (Biobío),35.0,15.32,2355.0225000000087
+2028,T1_Region_Acopio,R01,Arica y Parinacota,C1,CA Iquique (Norte Grande),236.4,18.5,1122.0524873358195
+2028,T1_Region_Acopio,R02,Tarapacá,C1,CA Iquique (Norte Grande),35.0,7.42,3877.9475126641805
+2028,T1_Region_Acopio,R03,Antofagasta,C2,CA Antofagasta (Norte),35.0,7.42,4272.5551601484
+2028,T1_Region_Acopio,R04,Atacama,C2,CA Antofagasta (Norte),504.3,33.24,2519.197586633054
+2028,T1_Region_Acopio,R05,Coquimbo,C3,CA Coquimbo (Norte Chico),35.0,7.42,3288.2472532185434
+2028,T1_Region_Acopio,R10,Ñuble,C5,CA Coronel (Biobío),124.9,12.37,2478.1301999999996
+2028,T1_Region_Acopio,R11,Biobío,C5,CA Coronel (Biobío),35.0,7.42,3791.193712500004
+2028,T1_Region_Acopio,R12,La Araucanía,C5,CA Coronel (Biobío),240.5,18.73,4026.9615750000107
+2028,T1_Region_Acopio,R13,Los Ríos,C5,CA Coronel (Biobío),379.8,26.39,1703.7145125
+2028,T1_Region_Acopio,R14,Los Lagos,C6,CA Puerto Montt (Sur-Austral),35.0,7.42,4181.844712500006
+2028,T1_Region_Acopio,R15,Aysén,C6,CA Puerto Montt (Sur-Austral),563.6,36.5,774.4156874999999
+2028,T1_Region_Acopio,R16,Magallanes,C6,CA Puerto Montt (Sur-Austral),1597.2,93.35,1084.1819624999998
+2028,T2_Acopio_Planta,C1,CA Iquique (Norte Grande),P1,Planta Mejillones (Antofagasta),393.3,17.09,5000.0
+2028,T2_Acopio_Planta,C2,CA Antofagasta (Norte),P1,Planta Mejillones (Antofagasta),74.9,6.9,6791.752746781458
+2028,T2_Acopio_Planta,C3,CA Coquimbo (Norte Chico),P1,Planta Mejillones (Antofagasta),928.0,34.2,3288.2472532185425
+2028,T2_Acopio_Planta,C5,CA Coronel (Biobío),P5,Planta Talcahuano (Biobío),40.6,5.8,12000.00000000001
+2028,T2_Acopio_Planta,C6,CA Puerto Montt (Sur-Austral),P4,Planta Teno (Maule),915.3,33.79,744.3404249999994
+2028,T2_Acopio_Planta,C6,CA Puerto Montt (Sur-Austral),P5,Planta Talcahuano (Biobío),644.9,25.14,5296.101937500006
+2028,T3_Region_Planta_Directo,R06,Valparaíso,P2,Planta La Calera (Valparaíso),59.1,17.61,16430.87324318382
+2028,T3_Region_Planta_Directo,R07,Metropolitana,P2,Planta La Calera (Valparaíso),108.6,22.32,2419.1267568161784
+2028,T3_Region_Planta_Directo,R07,Metropolitana,P3,Planta Tiltil / Polpaico (RM),57.1,17.42,36250.0
+2028,T3_Region_Planta_Directo,R08,O'Higgins,P4,Planta Teno (Maule),105.9,22.06,5420.9098125
+2028,T3_Region_Planta_Directo,R09,Maule,P4,Planta Teno (Maule),93.2,20.85,11814.7497625
+2028,T3_Region_Planta_Directo,R11,Biobío,P5,Planta Talcahuano (Biobío),35.0,15.32,2713.898062499996
+2029,T1_Region_Acopio,R01,Arica y Parinacota,C1,CA Iquique (Norte Grande),236.4,18.5,1525.103799519216
+2029,T1_Region_Acopio,R02,Tarapacá,C1,CA Iquique (Norte Grande),35.0,7.42,3974.896200480784
+2029,T1_Region_Acopio,R03,Antofagasta,C2,CA Antofagasta (Norte),35.0,7.42,4379.3690391521095
+2029,T1_Region_Acopio,R04,Atacama,C2,CA Antofagasta (Norte),504.3,33.24,2582.1775262988776
+2029,T1_Region_Acopio,R05,Coquimbo,C3,CA Coquimbo (Norte Chico),35.0,7.42,3844.783986846458
+2029,T1_Region_Acopio,R10,Ñuble,C5,CA Coronel (Biobío),124.9,12.37,2540.0834549999986
+2029,T1_Region_Acopio,R11,Biobío,C5,CA Coronel (Biobío),35.0,7.42,3585.973555312503
+2029,T1_Region_Acopio,R12,La Araucanía,C5,CA Coronel (Biobío),240.5,18.73,4127.635614375003
+2029,T1_Region_Acopio,R13,Los Ríos,C5,CA Coronel (Biobío),379.8,26.39,1746.3073753124993
+2029,T1_Region_Acopio,R14,Los Lagos,C6,CA Puerto Montt (Sur-Austral),35.0,7.42,4286.3908303125
+2029,T1_Region_Acopio,R15,Aysén,C6,CA Puerto Montt (Sur-Austral),563.6,36.5,793.7760796874996
+2029,T1_Region_Acopio,R16,Magallanes,C6,CA Puerto Montt (Sur-Austral),1597.2,93.35,1111.2865115624993
+2029,T2_Acopio_Planta,C1,CA Iquique (Norte Grande),P1,Planta Mejillones (Antofagasta),393.3,17.09,4273.669447702554
+2029,T2_Acopio_Planta,C2,CA Antofagasta (Norte),P1,Planta Mejillones (Antofagasta),74.9,6.9,6961.546565450987
+2029,T2_Acopio_Planta,C3,CA Coquimbo (Norte Chico),P1,Planta Mejillones (Antofagasta),928.0,34.2,3844.783986846459
+2029,T2_Acopio_Planta,C5,CA Coronel (Biobío),P5,Planta Talcahuano (Biobío),40.6,5.8,12000.000000000002
+2029,T2_Acopio_Planta,C6,CA Puerto Montt (Sur-Austral),P4,Planta Teno (Maule),915.3,33.79,1263.1989356249915
+2029,T2_Acopio_Planta,C6,CA Puerto Montt (Sur-Austral),P5,Planta Talcahuano (Biobío),644.9,25.14,4928.2544859375075
+2029,T3_Region_Planta_Directo,R06,Valparaíso,P2,Planta La Calera (Valparaíso),59.1,17.61,16841.64507426341
+2029,T3_Region_Planta_Directo,R07,Metropolitana,P2,Planta La Calera (Valparaíso),108.6,22.32,2008.3549257365885
+2029,T3_Region_Planta_Directo,R07,Metropolitana,P3,Planta Tiltil / Polpaico (RM),57.1,17.42,36250.0
+2029,T3_Region_Planta_Directo,R08,O'Higgins,P4,Planta Teno (Maule),105.9,22.06,5556.432557812498
+2029,T3_Region_Planta_Directo,R09,Maule,P4,Planta Teno (Maule),93.2,20.85,11160.36850656251
+2029,T3_Region_Planta_Directo,R11,Biobío,P5,Planta Talcahuano (Biobío),35.0,15.32,3081.7455140624943
+2030,T1_Region_Acopio,R01,Arica y Parinacota,C1,CA Iquique (Norte Grande),236.4,18.5,2261.7164196748504
+2030,T1_Region_Acopio,R02,Tarapacá,C1,CA Iquique (Norte Grande),35.0,7.42,3238.2835803251496
+2030,T1_Region_Acopio,R02,Tarapacá,C2,CA Antofagasta (Norte),467.2,31.2,835.9850251676548
+2030,T1_Region_Acopio,R03,Antofagasta,C2,CA Antofagasta (Norte),35.0,7.42,4488.853265130912
+2030,T1_Region_Acopio,R04,Atacama,C2,CA Antofagasta (Norte),504.3,33.24,2646.731964456351
+2030,T1_Region_Acopio,R05,Coquimbo,C3,CA Coquimbo (Norte Chico),35.0,7.42,7082.099192947638
+2030,T1_Region_Acopio,R07,Metropolitana,C4,CA Lampa (Metropolitana),35.0,7.42,18000.0
+2030,T1_Region_Acopio,R10,Ñuble,C5,CA Coronel (Biobío),124.9,12.37,2603.585541374999
+2030,T1_Region_Acopio,R11,Biobío,C5,CA Coronel (Biobío),35.0,7.42,4375.622894195314
+2030,T1_Region_Acopio,R12,La Araucanía,C5,CA Coronel (Biobío),240.5,18.73,4230.826504734374
+2030,T1_Region_Acopio,R13,Los Ríos,C5,CA Coronel (Biobío),379.8,26.39,1789.965059695312
+2030,T1_Region_Acopio,R14,Los Lagos,C6,CA Puerto Montt (Sur-Austral),35.0,7.42,4393.550601070311
+2030,T1_Region_Acopio,R15,Aysén,C6,CA Puerto Montt (Sur-Austral),563.6,36.5,813.6204816796873
+2030,T1_Region_Acopio,R16,Magallanes,C6,CA Puerto Montt (Sur-Austral),1597.2,93.35,1139.068674351562
+2030,T2_Acopio_Planta,C1,CA Iquique (Norte Grande),P1,Planta Mejillones (Antofagasta),393.3,17.09,4926.330552297446
+2030,T2_Acopio_Planta,C2,CA Antofagasta (Norte),P1,Planta Mejillones (Antofagasta),74.9,6.9,5471.570254754917
+2030,T2_Acopio_Planta,C3,CA Coquimbo (Norte Chico),P1,Planta Mejillones (Antofagasta),928.0,34.2,4682.099192947638
+2030,T2_Acopio_Planta,C4,CA Lampa (Metropolitana),P2,Planta La Calera (Valparaíso),77.2,6.97,1587.3137988800045
+2030,T2_Acopio_Planta,C4,CA Lampa (Metropolitana),P3,Planta Tiltil / Polpaico (RM),35.0,5.62,11912.686201119996
+2030,T2_Acopio_Planta,C5,CA Coronel (Biobío),P5,Planta Talcahuano (Biobío),40.6,5.8,9800.0
+2030,T2_Acopio_Planta,C6,CA Puerto Montt (Sur-Austral),P5,Planta Talcahuano (Biobío),644.9,25.14,3546.2397571015604
+2030,T3_Region_Planta_Directo,R06,Valparaíso,P2,Planta La Calera (Valparaíso),59.1,17.61,17262.686201119996
+2030,T3_Region_Planta_Directo,R07,Metropolitana,P3,Planta Tiltil / Polpaico (RM),57.1,17.42,24337.313798880008
+2030,T3_Region_Planta_Directo,R08,O'Higgins,P4,Planta Teno (Maule),105.9,22.06,5695.343371757811
+2030,T3_Region_Planta_Directo,R09,Maule,P4,Planta Teno (Maule),93.2,20.85,12284.656628242188
+2030,T3_Region_Planta_Directo,R11,Biobío,P5,Planta Talcahuano (Biobío),35.0,15.32,6663.760242898439
