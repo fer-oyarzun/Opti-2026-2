@@ -807,7 +807,7 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
     estado = pd.DataFrame([info])
     estado.to_csv(salida / "resumen_solver.csv", index=False, encoding="utf-8-sig")
 
-    with pd.ExcelWriter(salida / "Resultados_Optimizacion_REP_NFU_Extremo.xlsx") as writer:
+    with pd.ExcelWriter(salida / "Resultados_Optimizacion_REP.xlsx") as writer:
         estado.to_excel(writer, sheet_name="Estado_Gurobi", index=False)
         for hoja, df in tablas.items():
             df.to_excel(writer, sheet_name=hoja, index=False)
