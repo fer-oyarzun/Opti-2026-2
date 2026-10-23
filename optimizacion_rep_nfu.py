@@ -10,6 +10,8 @@ Modelo actualizado para el nuevo dataset 2026-2030:
 - Cálculo explícito y reporte detallado del Valor Óptimo de la Función Objetivo.
 """
 
+
+
 import argparse
 import math
 import shutil
@@ -18,6 +20,8 @@ from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
 import pandas as pd
+import matplotlib.pyplot as plt  
+import seaborn as sns
 
 try:
     import gurobipy as gp
@@ -463,6 +467,38 @@ def progreso_callback(historial):
 
     return registrar
 
+def generar_graficos(tablas, salida):
+    """Genera y guarda los gráficos requeridos por la rúbrica usando los DataFrames en memoria."""
+    # 1. Gráfico de Costos (Torta)
+    if "Resumen_Costos_FO" in tablas:
+        df_costos = tablas["Resumen_Costos_FO"]
+        df_pie = df_costos[(df_costos['Componente'] != 'TOTAL FUNCIÓN OBJETIVO (Z*)') & (df_costos['Costo_MM_CLP'] > 0)]
+        
+        plt.figure(figsize=(8, 8))
+        plt.pie(df_pie['Costo_MM_CLP'], labels=df_pie['Componente'], autopct='%1.1f%%', 
+                startangle=140, colors=sns.color_palette("Set2"))
+        plt.title('Distribución de Costos del Sistema (2026-2030)')
+        plt.savefig(salida / 'grafico_costos.png', bbox_inches='tight')
+        plt.close()
+
+    # 2. Gráfico de Metas Normativas (Líneas/Área)
+    if "Cumplimiento_Normativo_DS8" in tablas:
+        df_norma = tablas["Cumplimiento_Normativo_DS8"]
+        plt.figure(figsize=(10, 6))
+        plt.plot(df_norma['anio'], df_norma['meta_rec_ton'], 'r--', linewidth=2, label='Meta Recolección (DS8)')
+        plt.plot(df_norma['anio'], df_norma['recoleccion_ton'], 'b-', marker='o', label='Recolección Efectiva')
+        plt.plot(df_norma['anio'], df_norma['valorizacion_material_ton'], 'g-', marker='s', label='Valorización Material (K2)')
+        
+        plt.fill_between(df_norma['anio'], df_norma['meta_rec_ton'], df_norma['recoleccion_ton'], color='blue', alpha=0.1)
+        
+        plt.title('Cumplimiento Normativo: Recolección y Valorización')
+        plt.xlabel('Año')
+        plt.ylabel('Toneladas')
+        plt.xticks(df_norma['anio'])
+        plt.legend()
+        plt.grid(True, linestyle='--', alpha=0.6)
+        plt.savefig(salida / 'grafico_metas.png', bbox_inches='tight')
+        plt.close()
 
 def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
     hay_solucion = m.SolCount > 0
@@ -776,8 +812,14 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
         for hoja, df in tablas.items():
             df.to_excel(writer, sheet_name=hoja, index=False)
 
+    try:
+        generar_graficos(tablas, salida)
+    except Exception as e:
+        print(f"Error al generar gráficos: {e}")
+
     texto = "\n".join(line for line in resumen if line != "") + "\n"
     (salida / "resumen_ejecucion.txt").write_text(texto, encoding="utf-8")
+
     print("\n" + texto)
     print(f"Archivos guardados en: {salida}")
     return info
@@ -820,7 +862,7 @@ def main():
 
     base = Path(__file__).resolve().parent
     raiz = base.parent if base.name in ["Script Python", "Script_Python"] else base
-    carpeta = raiz / "Analisis de Excels"
+    carpeta = raiz / "Analisis_de_Excels"
     salida = carpeta / datetime.now().astimezone().strftime("ejecucion_%Y%m%d_%H%M%S_%f")
     salida.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ruta, salida / "entrada_datos.xlsx")
