@@ -9,12 +9,9 @@ Modelo de Complejidad Extrema (Nivel Quincenal):
 """
 
 import argparse
-import hashlib
 import math
-import platform
 import shutil
 import sys
-import json
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
