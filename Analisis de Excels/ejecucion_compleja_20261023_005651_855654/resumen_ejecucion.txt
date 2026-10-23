@@ -1,4 +1,0 @@
-Estado: OPTIMAL (código 2).
-Tiempo de optimización: 2.471 s; límite: 1800 s.
-Variables Totales: 61050 (Binarias: 130, Enteras: 26240, Continuas: 34680)
-Restricciones: 31209; soluciones almacenadas: 3.
