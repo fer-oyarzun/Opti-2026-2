@@ -1,12 +1,11 @@
 """Proyecto REP-NFU, grupo 52. Python 3.11 / gurobipy 10.0.3.
 
-Modelo Combinado (Máxima Complejidad) con Exportación de Resultados:
+Modelo de Complejidad Extrema (Nivel Quincenal):
 - Trazabilidad total de la Región de Origen (Multi-commodity).
-- Vehículos discretos (Camiones de 10t y 25t) con variables enteras para viajes.
-- Disgregación temporal en Trimestres operativos.
-- Retorna reportes consolidados anuales (Excel, CSV, resúmenes).
+- Vehículos discretos (Camiones de 10t, 15t y 25t) con variables enteras para viajes.
+- Disgregación temporal extrema: 24 Quincenas operativas por año.
+- Retorna reportes consolidados anuales exactos (Excel, CSV, resúmenes).
 
-Ejecutar: python optimizacion_rep_nfu.py
 """
 
 import argparse
@@ -122,12 +121,12 @@ def cargar_datos(ruta):
     return d
 
 # =============================================================================
-# MODELO MATEMÁTICO COMBINADO (Variables Enteras + Multi-Commodity)
+# MODELO MATEMÁTICO 
 # =============================================================================
 
-def construir_modelo_combinado(d, salida):
+def construir_modelo_extremo(d, salida):
     GRB, Q = gp.GRB, gp.quicksum
-    m = gp.Model("Optimizacion_REP_NFU_Combinado")
+    m = gp.Model("Optimizacion_REP_NFU_Extremo")
     m.Params.LogFile = str(salida / "gurobi.log")
     m.Params.TimeLimit = TIME_LIMIT
     m.Params.MIPGap = MIP_GAP
@@ -135,28 +134,30 @@ def construir_modelo_combinado(d, salida):
     
     VEHICULOS = {
         'Camion_10t': {'cap': 10, 'costo_f': 1.2},
+        'Camion_15t': {'cap': 15, 'costo_f': 1.1},
         'Camion_25t': {'cap': 25, 'costo_f': 1.0}
     }
     V = list(VEHICULOS.keys())
-    Tr = [1, 2, 3, 4]  # Trimestres operativos
+    Qu = list(range(1, 25))
+    
     d.V = V
-    d.Tr = Tr
+    d.Qu = Qu
     
     y = m.addVars(d.C, d.T, vtype=GRB.BINARY, name="y")
     w = m.addVars(d.P, d.K, d.T, vtype=GRB.BINARY, name="w")
     
-    nx = m.addVars(d.R, d.C, V, d.T, Tr, vtype=GRB.INTEGER, lb=0, name="nx")
-    nz = m.addVars(d.R, d.P, V, d.T, Tr, vtype=GRB.INTEGER, lb=0, name="nz")
-    nf = m.addVars(d.R, d.C, d.P, V, d.T, Tr, vtype=GRB.INTEGER, lb=0, name="nf")
+    nx = m.addVars(d.R, d.C, V, d.T, Qu, vtype=GRB.INTEGER, lb=0, name="nx")
+    nz = m.addVars(d.R, d.P, V, d.T, Qu, vtype=GRB.INTEGER, lb=0, name="nz")
+    nf = m.addVars(d.R, d.C, d.P, V, d.T, Qu, vtype=GRB.INTEGER, lb=0, name="nf")
     
-    x = m.addVars(d.R, d.C, V, d.T, Tr, lb=0, name="x")
-    z = m.addVars(d.R, d.P, V, d.T, Tr, lb=0, name="z")
-    f = m.addVars(d.R, d.C, d.P, V, d.T, Tr, lb=0, name="f")
-    v = m.addVars(d.R, d.P, d.K, d.T, Tr, lb=0, name="v")
-    s = m.addVars(d.R, d.C, d.T, Tr, lb=0, name="s")
+    x = m.addVars(d.R, d.C, V, d.T, Qu, lb=0, name="x")
+    z = m.addVars(d.R, d.P, V, d.T, Qu, lb=0, name="z")
+    f = m.addVars(d.R, d.C, d.P, V, d.T, Qu, lb=0, name="f")
+    v = m.addVars(d.R, d.P, d.K, d.T, Qu, lb=0, name="v")
+    s = m.addVars(d.R, d.C, d.T, Qu, lb=0, name="s")
     
-    dR = m.addVars(d.T, Tr, lb=0, name="dR")
-    dV = m.addVars(d.T, Tr, lb=0, name="dV")
+    dR = m.addVars(d.T, Qu, lb=0, name="dR")
+    dV = m.addVars(d.T, Qu, lb=0, name="dV")
     dQ = m.addVars(d.R, d.T, lb=0, name="dQ")
 
     anterior = {t: d.T[i-1] if i else None for i, t in enumerate(d.T)}
@@ -168,49 +169,50 @@ def construir_modelo_combinado(d, salida):
         "IC_P inversion habilitacion lineas": Q(d.iP[p, k] * dw[p, k, t] for p in d.P for k in d.K for t in d.T),
         "CF_C operacion fija centros": Q(d.cF[c] * y[c, t] for c in d.C for t in d.T),
         "CF_P operacion fija plantas": Q(d.cP[p, k] * w[p, k, t] for p in d.P for k in d.K for t in d.T),
-        "CT_1 transporte region-acopio": Q(d.cT1[o, c] * VEHICULOS[vh]['costo_f'] * x[o, c, vh, t, tr] for o in d.R for c in d.C for vh in V for t in d.T for tr in Tr),
-        "CT_2 transporte acopio-planta": Q(d.cT2[c, p] * VEHICULOS[vh]['costo_f'] * f[o, c, p, vh, t, tr] for o in d.R for c in d.C for p in d.P for vh in V for t in d.T for tr in Tr),
-        "CT_3 transporte region-planta": Q(d.cT3[o, p] * VEHICULOS[vh]['costo_f'] * z[o, p, vh, t, tr] for o in d.R for p in d.P for vh in V for t in d.T for tr in Tr),
-        "CP_V procesamiento": Q(d.cV[k] * v[o, p, k, t, tr] for o in d.R for p in d.P for k in d.K for t in d.T for tr in Tr),
-        "CA_S almacenaje": Q((d.h[c]/4) * s[o, c, t, tr] for o in d.R for c in d.C for t in d.T for tr in Tr),
-        "CP_M penalizaciones deficit": Q(d.muR[t] * dR[t, tr] + d.muV[t] * dV[t, tr] for t in d.T for tr in Tr) + Q(d.muQ[t] * dQ[o, t] for o in d.R for t in d.T),
+        "CT_1 transporte region-acopio": Q(d.cT1[o, c] * VEHICULOS[vh]['costo_f'] * x[o, c, vh, t, qu] for o in d.R for c in d.C for vh in V for t in d.T for qu in Qu),
+        "CT_2 transporte acopio-planta": Q(d.cT2[c, p] * VEHICULOS[vh]['costo_f'] * f[o, c, p, vh, t, qu] for o in d.R for c in d.C for p in d.P for vh in V for t in d.T for qu in Qu),
+        "CT_3 transporte region-planta": Q(d.cT3[o, p] * VEHICULOS[vh]['costo_f'] * z[o, p, vh, t, qu] for o in d.R for p in d.P for vh in V for t in d.T for qu in Qu),
+        "CP_V procesamiento": Q(d.cV[k] * v[o, p, k, t, qu] for o in d.R for p in d.P for k in d.K for t in d.T for qu in Qu),
+        "CA_S almacenaje": Q((d.h[c]/24) * s[o, c, t, qu] for o in d.R for c in d.C for t in d.T for qu in Qu),
+        "CP_M penalizaciones deficit": Q(d.muR[t] * dR[t, qu] + d.muV[t] * dV[t, qu] for t in d.T for qu in Qu) + Q(d.muQ[t] * dQ[o, t] for o in d.R for t in d.T),
     }
     
     m.setObjective(Q(costos.values()), GRB.MINIMIZE)
 
-    m.addConstrs((x[o, c, vh, t, tr] <= VEHICULOS[vh]['cap'] * nx[o, c, vh, t, tr] for o in d.R for c in d.C for vh in V for t in d.T for tr in Tr), "R_RutaX")
-    m.addConstrs((z[o, p, vh, t, tr] <= VEHICULOS[vh]['cap'] * nz[o, p, vh, t, tr] for o in d.R for p in d.P for vh in V for t in d.T for tr in Tr), "R_RutaZ")
-    m.addConstrs((f[o, c, p, vh, t, tr] <= VEHICULOS[vh]['cap'] * nf[o, c, p, vh, t, tr] for o in d.R for c in d.C for p in d.P for vh in V for t in d.T for tr in Tr), "R_RutaF")
+    m.addConstrs((x[o, c, vh, t, qu] <= VEHICULOS[vh]['cap'] * nx[o, c, vh, t, qu] for o in d.R for c in d.C for vh in V for t in d.T for qu in Qu), "R_RutaX")
+    m.addConstrs((z[o, p, vh, t, qu] <= VEHICULOS[vh]['cap'] * nz[o, p, vh, t, qu] for o in d.R for p in d.P for vh in V for t in d.T for qu in Qu), "R_RutaZ")
+    m.addConstrs((f[o, c, p, vh, t, qu] <= VEHICULOS[vh]['cap'] * nf[o, c, p, vh, t, qu] for o in d.R for c in d.C for p in d.P for vh in V for t in d.T for qu in Qu), "R_RutaF")
     
-    m.addConstrs((Q(x[r, c, vh, t, tr] for c in d.C for vh in V) + Q(z[r, p, vh, t, tr] for p in d.P for vh in V) <= d.gen[r, t]/4 for r in d.R for t in d.T for tr in Tr), "R1")
+    m.addConstrs((Q(x[r, c, vh, t, qu] for c in d.C for vh in V) + Q(z[r, p, vh, t, qu] for p in d.P for vh in V) <= d.gen[r, t]/24 for r in d.R for t in d.T for qu in Qu), "R1")
     
-    m.addConstrs((Q(x[o, c, vh, t, tr] for o in d.R for vh in V) <= (d.aC[c]/4) * y[c, t] for c in d.C for t in d.T for tr in Tr), "R2a")
-    m.addConstrs((Q(f[o, c, p, vh, t, tr] for o in d.R for p in d.P for vh in V) <= (d.bC[c]/4) * y[c, t] for c in d.C for t in d.T for tr in Tr), "R2b")
-    m.addConstrs((Q(s[o, c, t, tr] for o in d.R) <= d.sM[c] * y[c, t] for c in d.C for t in d.T for tr in Tr), "R3")
+    m.addConstrs((Q(x[o, c, vh, t, qu] for o in d.R for vh in V) <= (d.aC[c]/24) * y[c, t] for c in d.C for t in d.T for qu in Qu), "R2a")
+    m.addConstrs((Q(f[o, c, p, vh, t, qu] for o in d.R for p in d.P for vh in V) <= (d.bC[c]/24) * y[c, t] for c in d.C for t in d.T for qu in Qu), "R2b")
+    m.addConstrs((Q(s[o, c, t, qu] for o in d.R) <= d.sM[c] * y[c, t] for c in d.C for t in d.T for qu in Qu), "R3")
     
     for o in d.R:
         for c in d.C:
             for t in d.T:
-                for tr in Tr:
-                    if tr > 1:
-                        previo = s[o, c, t, tr-1]
+                for qu in Qu:
+                    if qu > 1:
+                        previo = s[o, c, t, qu-1]
                     else:
-                        previo = s[o, c, anterior[t], 4] if anterior[t] is not None else 0
-                    m.addConstr(s[o, c, t, tr] == previo + Q(x[o, c, vh, t, tr] for vh in V) - Q(f[o, c, p, vh, t, tr] for p in d.P for vh in V), f"R4_{o}_{c}_{t}_{tr}")
+                        previo = s[o, c, anterior[t], 24] if anterior[t] is not None else 0
+                    m.addConstr(s[o, c, t, qu] == previo + Q(x[o, c, vh, t, qu] for vh in V) - Q(f[o, c, p, vh, t, qu] for p in d.P for vh in V), f"R4_{o}_{c}_{t}_{qu}")
     
-    m.addConstrs((Q(v[o, p, k, t, tr] for k in d.K) == Q(f[o, c, p, vh, t, tr] for c in d.C for vh in V) + Q(z[o, p, vh, t, tr] for vh in V) for o in d.R for p in d.P for t in d.T for tr in Tr), "R5")
-    m.addConstrs((Q(v[o, p, k, t, tr] for o in d.R) <= (d.aP[p, k]/4) * w[p, k, t] for p in d.P for k in d.K for t in d.T for tr in Tr), "R6")
+    m.addConstrs((Q(v[o, p, k, t, qu] for k in d.K) == Q(f[o, c, p, vh, t, qu] for c in d.C for vh in V) + Q(z[o, p, vh, t, qu] for vh in V) for o in d.R for p in d.P for t in d.T for qu in Qu), "R5")
+    
+    m.addConstrs((Q(v[o, p, k, t, qu] for o in d.R) <= (d.aP[p, k]/24) * w[p, k, t] for p in d.P for k in d.K for t in d.T for qu in Qu), "R6")
     m.addConstrs((w[p, k, t] <= d.epk[p, k] for p in d.P for k in d.K for t in d.T), "R6b")
     m.addConstrs((Q(w[p, k, t] for k in d.K) <= d.nP[p] for p in d.P for t in d.T), "R6c")
     
     for t in d.T:
-        gen_tri_total = sum(d.gen[r, t] for r in d.R) / 4
-        for tr in Tr:
-            m.addConstr(Q(x[o, c, vh, t, tr] for o in d.R for c in d.C for vh in V) + Q(z[o, p, vh, t, tr] for o in d.R for p in d.P for vh in V) + dR[t, tr] >= d.mr[t] * gen_tri_total, "R7")
-            m.addConstr(Q(v[o, p, k, t, tr] for o in d.R for p in d.P for k in d.K) + dV[t, tr] >= d.mv[t] * gen_tri_total, "R8")
-            m.addConstr(Q(v[o, p, k, t, tr] for o in d.R for p in d.P for k in d.KM) >= d.alpha * Q(v[o, p, k, t, tr] for o in d.R for p in d.P for k in d.K), "R12")
+        gen_qu_total = sum(d.gen[r, t] for r in d.R) / 24
+        for qu in Qu:
+            m.addConstr(Q(x[o, c, vh, t, qu] for o in d.R for c in d.C for vh in V) + Q(z[o, p, vh, t, qu] for o in d.R for p in d.P for vh in V) + dR[t, qu] >= d.mr[t] * gen_qu_total, "R7")
+            m.addConstr(Q(v[o, p, k, t, qu] for o in d.R for p in d.P for k in d.K) + dV[t, qu] >= d.mv[t] * gen_qu_total, "R8")
+            m.addConstr(Q(v[o, p, k, t, qu] for o in d.R for p in d.P for k in d.KM) >= d.alpha * Q(v[o, p, k, t, qu] for o in d.R for p in d.P for k in d.K), "R12")
         for r in d.R:
-            m.addConstr(Q(x[r, c, vh, t, tr] for c in d.C for vh in V for tr in Tr) + Q(z[r, p, vh, t, tr] for p in d.P for vh in V for tr in Tr) + dQ[r, t] >= d.qr[r] * sum(d.gen[o, t] for o in d.R), "R9")
+            m.addConstr(Q(x[r, c, vh, t, qu] for c in d.C for vh in V for qu in Qu) + Q(z[r, p, vh, t, qu] for p in d.P for vh in V for qu in Qu) + dQ[r, t] >= d.qr[r] * sum(d.gen[o, t] for o in d.R), "R9")
             
     for t in d.T[1:]:
         m.addConstrs((y[c, t] >= y[c, anterior[t]] for c in d.C), "R10a")
@@ -289,44 +291,45 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
         
         for t in d.T:
             gen = sum(d.gen[r, t] for r in d.R)
-            # Acumulando dimensiones: origenes, vehiculos, trimestres
-            rec = sum(X("x", o, c, vh, t, tr) for o in d.R for c in d.C for vh in d.V for tr in d.Tr) + sum(X("z", o, p, vh, t, tr) for o in d.R for p in d.P for vh in d.V for tr in d.Tr)
-            val = sum(X("v", o, p, k, t, tr) for o in d.R for p in d.P for k in d.K for tr in d.Tr)
-            mat = sum(X("v", o, p, k, t, tr) for o in d.R for p in d.P for k in d.KM for tr in d.Tr)
             
-            # Stock a fin de año (trimestre 4) y stock previo (año anterior, tr 4)
-            stock_previo = sum(X("s", o, c, anterior[t], 4) if anterior[t] is not None else 0 for o in d.R for c in d.C)
-            stock_final = sum(X("s", o, c, t, 4) for o in d.R for c in d.C)
+            # Acumulando dimensiones: origenes, vehiculos, quincenas
+            rec = sum(X("x", o, c, vh, t, qu) for o in d.R for c in d.C for vh in d.V for qu in d.Qu) + sum(X("z", o, p, vh, t, qu) for o in d.R for p in d.P for vh in d.V for qu in d.Qu)
+            val = sum(X("v", o, p, k, t, qu) for o in d.R for p in d.P for k in d.K for qu in d.Qu)
+            mat = sum(X("v", o, p, k, t, qu) for o in d.R for p in d.P for k in d.KM for qu in d.Qu)
+            
+            # Stock a fin de año (quincena 24) y stock previo (año anterior, quincena 24)
+            stock_previo = sum(X("s", o, c, anterior[t], 24) if anterior[t] is not None else 0 for o in d.R for c in d.C)
+            stock_final = sum(X("s", o, c, t, 24) for o in d.R for c in d.C)
             residuo = rec + stock_previo - val - stock_final
             
             balances.append(dict(anio=t, recoleccion_ton=rec, inventario_inicial_ton=stock_previo, valorizacion_ton=val, inventario_final_ton=stock_final, residuo_balance_ton=residuo))
             
             ds8.append(dict(anio=t, generacion_ton=gen, meta_rec_ton=d.mr[t]*gen, recoleccion_ton=rec, pct_recoleccion=100*rec/gen, 
-                deficit_rec_ton=sum(X("dR", t, tr) for tr in d.Tr), meta_val_ton=d.mv[t]*gen, valorizacion_ton=val, pct_valorizacion=100*val/gen, 
-                deficit_val_ton=sum(X("dV", t, tr) for tr in d.Tr), valorizacion_material_ton=mat, valorizacion_energetica_ton=val-mat,
+                deficit_rec_ton=sum(X("dR", t, qu) for qu in d.Qu), meta_val_ton=d.mv[t]*gen, valorizacion_ton=val, pct_valorizacion=100*val/gen, 
+                deficit_val_ton=sum(X("dV", t, qu) for qu in d.Qu), valorizacion_material_ton=mat, valorizacion_energetica_ton=val-mat,
                 pct_material_sobre_valorizado=100*mat/val if val > TOL_TON else None, minimo_material_ton=d.alpha*val, holgura_material_ton=mat-d.alpha*val,
                 deficit_cuotas_regionales_ton=sum(X("dQ", r, t) for r in d.R)))
                 
             for r in d.R:
-                recogido = sum(X("x", r, c, vh, t, tr) for c in d.C for vh in d.V for tr in d.Tr) + sum(X("z", r, p, vh, t, tr) for p in d.P for vh in d.V for tr in d.Tr)
+                recogido = sum(X("x", r, c, vh, t, qu) for c in d.C for vh in d.V for qu in d.Qu) + sum(X("z", r, p, vh, t, qu) for p in d.P for vh in d.V for qu in d.Qu)
                 cuotas.append(dict(anio=t, region_id=r, region=nr[r], disponible_ton=d.gen[r, t], cuota_minima_ton=d.qr[r]*gen, recoleccion_ton=recogido, deficit_ton=X("dQ", r, t)))
                 
             for c in d.C:
                 activo = X("y", c, t)
                 apertura = activo - (X("y", c, anterior[t]) if anterior[t] is not None else 0)
-                entrada = sum(X("x", o, c, vh, t, tr) for o in d.R for vh in d.V for tr in d.Tr)
-                despacho = sum(X("f", o, c, p, vh, t, tr) for o in d.R for p in d.P for vh in d.V for tr in d.Tr)
+                entrada = sum(X("x", o, c, vh, t, qu) for o in d.R for vh in d.V for qu in d.Qu)
+                despacho = sum(X("f", o, c, p, vh, t, qu) for o in d.R for p in d.P for vh in d.V for qu in d.Qu)
                 acopios.append(dict(anio=t, centro_id=c, centro=nc[c], activo=round(activo), cap_entrada_ton=d.aC[c]*activo, flujo_entrada_ton=entrada,
                     uso_entrada_pct=100*entrada/(d.aC[c]*activo) if d.aC[c]*activo > TOL_TON else None, cap_salida_ton=d.bC[c]*activo, flujo_salida_ton=despacho,
                     uso_salida_pct=100*despacho/(d.bC[c]*activo) if d.bC[c]*activo > TOL_TON else None, inv_max_ton=d.sM[c]*activo, 
-                    inventario_final_ton=sum(X("s", o, c, t, 4) for o in d.R)))
+                    inventario_final_ton=sum(X("s", o, c, t, 24) for o in d.R)))
                 aperturas.append(dict(anio=t, tipo="Centro", instalacion=c, tecnologia="", activo=round(activo), apertura=round(apertura), inversion_M_CLP=d.iC[c]*apertura))
                 
             for p in d.P:
                 for k in d.K:
                     activo = X("w", p, k, t)
                     apertura = activo - (X("w", p, k, anterior[t]) if anterior[t] is not None else 0)
-                    proc = sum(X("v", o, p, k, t, tr) for o in d.R for tr in d.Tr)
+                    proc = sum(X("v", o, p, k, t, qu) for o in d.R for qu in d.Qu)
                     plantas.append(dict(anio=t, planta_id=p, planta=np_[p], tecnologia_id=k, tecnologia=nk[k], categoria_ds8="Material" if k in d.KM else "Energetica", 
                         compatible=d.epk[p, k], activa=round(activo), cap_efectiva_ton=d.aP[p, k]*activo, valorizado_ton=proc,
                         uso_capacidad_pct=100*proc/(d.aP[p, k]*activo) if d.aP[p, k]*activo > TOL_TON else None))
@@ -335,17 +338,17 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
             # Flujos anuales consolidados
             for r in d.R:
                 for c in d.C:
-                    flujo = sum(X("x", r, c, vh, t, tr) for vh in d.V for tr in d.Tr)
+                    flujo = sum(X("x", r, c, vh, t, qu) for vh in d.V for qu in d.Qu)
                     if flujo > TOL_TON:
                         flujos.append(dict(anio=t, tramo="T1_Region_Acopio", origen_id=r, origen=nr[r], destino_id=c, destino=nc[c], distancia_km=d.distT1[r, c], costo_unit_M_CLP=d.cT1[r, c], toneladas=flujo))
             for c in d.C:
                 for p in d.P:
-                    flujo = sum(X("f", o, c, p, vh, t, tr) for o in d.R for vh in d.V for tr in d.Tr)
+                    flujo = sum(X("f", o, c, p, vh, t, qu) for o in d.R for vh in d.V for qu in d.Qu)
                     if flujo > TOL_TON:
                         flujos.append(dict(anio=t, tramo="T2_Acopio_Planta", origen_id=c, origen=nc[c], destino_id=p, destino=np_[p], distancia_km=d.distT2[c, p], costo_unit_M_CLP=d.cT2[c, p], toneladas=flujo))
             for r in d.R:
                 for p in d.P:
-                    flujo = sum(X("z", r, p, vh, t, tr) for vh in d.V for tr in d.Tr)
+                    flujo = sum(X("z", r, p, vh, t, qu) for vh in d.V for qu in d.Qu)
                     if flujo > TOL_TON:
                         flujos.append(dict(anio=t, tramo="T3_Region_Planta_Directo", origen_id=r, origen=nr[r], destino_id=p, destino=np_[p], distancia_km=d.distT3[r, p], costo_unit_M_CLP=d.cT3[r, p], toneladas=flujo))
                         
@@ -359,7 +362,7 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
     estado = pd.DataFrame([info])
     estado.to_csv(salida / "resumen_solver.csv", index=False, encoding="utf-8-sig")
     
-    with pd.ExcelWriter(salida / "Resultados_Optimizacion_REP_NFU_Complejo.xlsx") as writer:
+    with pd.ExcelWriter(salida / "Resultados_Optimizacion_REP_NFU_Extremo.xlsx") as writer:
         estado.to_excel(writer, sheet_name="Estado_Gurobi", index=False)
         for hoja, df in tablas.items():
             df.to_excel(writer, sheet_name=hoja, index=False)
@@ -375,7 +378,7 @@ def guardar_resultados(m, d, var, costos, anterior, salida, ruta, historial):
 # =============================================================================
 
 def main():
-    parser = argparse.ArgumentParser(description="Red REP-NFU Modelo Altamente Complejo (Variables enteras y multi-origen)")
+    parser = argparse.ArgumentParser(description="Red REP-NFU Modelo de Complejidad Extrema")
     args = parser.parse_args()
     
     ruta = ruta_datos()
@@ -385,14 +388,14 @@ def main():
     base = Path(__file__).resolve().parent
     raiz = base.parent if base.name in ["Script Python", "Script_Python"] else base
     carpeta = raiz / "Analisis de Excels"
-    salida = carpeta / datetime.now().astimezone().strftime("ejecucion_compleja_%Y%m%d_%H%M%S_%f")
+    salida = carpeta / datetime.now().astimezone().strftime("ejecucion_extrema_%Y%m%d_%H%M%S_%f")
     salida.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ruta, salida / "entrada_datos.xlsx")
     
     m = None
     try:
-        m, variables, costos, anterior = construir_modelo_combinado(d, salida)
-        print(f"\n--- ESTADÍSTICAS DEL MODELO COMBINADO ---")
+        m, variables, costos, anterior = construir_modelo_extremo(d, salida)
+        print(f"\n--- ESTADÍSTICAS DEL MODELO DE COMPLEJIDAD EXTREMA ---")
         print(f"Variables totales: {m.NumVars:,}")
         print(f"  Binarias: {m.NumBinVars:,}")
         print(f"  Enteras: {m.NumIntVars - m.NumBinVars:,}")
