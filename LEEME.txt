@@ -1,0 +1,79 @@
+PROYECTO OPTIMIZACIÓN ICS1113 — GRUPO 52 — ENTREGA 4
+Red de recolección y valorización de NFU bajo la Ley REP (Valora Más, 2026-2030)
+Entrega: viernes 13 de noviembre, 22:00 (Canvas). Dos archivos: 52.pdf y 52.zip.
+
+==============================================================================
+1. QUÉ HAY EN ESTA CARPETA
+==============================================================================
+
+E4/
+  52/                      -> CONTENIDO DEL ZIP (estructura exigida por la pauta)
+    Script Python/
+      main.py              -> modelo completo (NO EDITAR, ver sección 4)
+      xlsx_io.py           -> lee/escribe Excel sin openpyxl (solo librería estándar)
+    Instancias Excel/
+      datos.xlsx           -> todos los parámetros (incluye hojas nuevas de flota)
+    Analisis de Excels/
+      ejecucion_20261109_214010_861569_OFICIAL/  -> CORRIDA OFICIAL (números del informe)
+  informe/
+    main.tex               -> informe (subir a Overleaf junto con figures/)
+    figures/               -> gráficos de la corrida oficial (falta LogoUC.jpg: está en Overleaf)
+  LEEME.txt                -> este archivo
+
+==============================================================================
+2. ESTADO ACTUAL
+==============================================================================
+
+Correcciones de la ayudante (E3) -> TODAS HECHAS:
+  [x] Librerías: solo gurobipy, pandas, matplotlib. Se eliminó openpyxl y seaborn.
+  [x] Capacidad y factor de camiones se leen del Excel (hoja Flota_Camiones).
+  [x] URLs en todas las referencias (17).
+  [x] R0: el transporte se cobra POR VIAJE (camión completo). El tipo de camión
+      ahora importa: se usan camiones de 10 y 15 t para los saldos.
+  [x] Tope de flota en regiones extremas (R13; hojas Parametros_Flota y Tope_Flota).
+
+Mejora adicional:
+  [x] R14a/R14b: desigualdades válidas. No cambian la solución; permiten que
+      Gurobi certifique el óptimo en 30 min (sin ellas: gap 0,96%).
+
+Corrida oficial: OPTIMAL, Z* = 81.922.606,31 M$ (81.922,61 MM$), gap 0,005%,
+1.653 s en i7-13700H (20 hilos). Secciones 1 a 7 del informe ya actualizadas.
+
+FALTA (55 pts):
+  [ ] j) Análisis de sensibilidad (30 pts)
+  [ ] k) Valorización del impacto vs. caso base (15 pts)
+  [ ] Conclusión (10 pts)
+  [ ] Revisar que el informe no pase de 13 páginas (hoy: 11 de contenido)
+
+==============================================================================
+3. CÓMO CORRER EL MODELO
+==============================================================================
+
+Requisitos: Python 3.10+ y licencia académica de Gurobi activa.
+  pip install gurobipy pandas matplotlib
+
+  cd "52/Script Python"
+  python main.py
+
+- Tarda ~28 min en un PC de 20 hilos (límite: 30 min). En PCs más lentos puede
+  terminar por TIME_LIMIT; la solución óptima aparece a los ~5 min igual.
+- Cada corrida crea Analisis de Excels/ejecucion_<fecha>/ con:
+  Resultados_Optimizacion_REP.xlsx, Tablas_Procesadas_Informe.xlsx,
+  grafico_costos.png, grafico_metas.png, gurobi.log, resumen_ejecucion.txt,
+  resumen_solver.csv, solucion.sol y una copia del Excel de entrada.
+
+==============================================================================
+4. REGLAS PARA TRABAJAR EN PARALELO
+==============================================================================
+
+- NADIE edita main.py ni Instancias Excel/datos.xlsx. Si algo está mal, avisar
+  y se corrige en un solo lugar.
+- Sensibilidad: copiar datos.xlsx con otro nombre, cambiar SOLO el parámetro
+  que toca y correr:
+      python main.py --datos "../Instancias Excel/sens_<parametro>_<valor>.xlsx"
+- Anotar en la planilla compartida: escenario, carpeta ejecucion_..., estado
+  (OPTIMAL / TIME_LIMIT), Z* y gap.
+- Los números oficiales del informe salen SOLO de la corrida oficial.
+- Antes de entregar: el ZIP solo lleva la carpeta 52/ (sin __pycache__). Los
+  Excel de sensibilidad y sus carpetas ejecucion_... también van, porque la
+  pauta pide poder rastrear cada tabla y figura.

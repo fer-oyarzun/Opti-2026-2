@@ -443,6 +443,20 @@ def construir_modelo(d, salida, time_limit=TIME_LIMIT, mip_gap=MIP_GAP):
         "R6c",
     )
 
+    # R14a, R14b: Desigualdades válidas (no eliminan soluciones enteras; ajustan la relajación lineal).
+    # Una línea solo procesa NFU de un origen si está activa, y a lo más lo que ese origen genera.
+    m.addConstrs(
+        (v[o, p, k, t] <= min(d.gen[o, t], d.aP[p, k]) * w[p, k, t]
+         for o in d.R for p in d.P for k in d.K for t in d.T),
+        "R14a",
+    )
+    # Solo se despacha directo a una planta que tenga al menos una línea activa.
+    m.addConstrs(
+        (z[r, p, t] <= d.gen[r, t] * Q(w[p, k, t] for k in d.K)
+         for r in d.R for p in d.P for t in d.T),
+        "R14b",
+    )
+
     # R7, R8, R12 (Metas Nacionales) y R9 (Cuotas Regionales DS8)
     for t in d.T:
         gen_anual_total = sum(d.gen[r, t] for r in d.R)
