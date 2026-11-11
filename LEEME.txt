@@ -74,6 +74,11 @@ Requisitos: Python 3.10+ y licencia académica de Gurobi activa.
 - Anotar en la planilla compartida: escenario, carpeta ejecucion_..., estado
   (OPTIMAL / TIME_LIMIT), Z* y gap.
 - Los números oficiales del informe salen SOLO de la corrida oficial.
-- Antes de entregar: el ZIP solo lleva la carpeta 52/ (sin __pycache__). Los
-  Excel de sensibilidad y sus carpetas ejecucion_... también van, porque la
-  pauta pide poder rastrear cada tabla y figura.
+- Antes de entregar: 52.zip lleva en su RAÍZ las 3 carpetas (Script Python/,
+  Instancias Excel/, Analisis de Excels/), sin __pycache__. Los Excel de
+  sensibilidad y sus carpetas también van, porque la pauta pide poder rastrear
+  cada tabla y figura.
+- Sensibilidad e impacto (secciones 8 y 9): python escenarios.py --grupo todos
+  (16 escenarios x 30 min; grupo "extra" = mu x0,15, x0,2 y tarifas x2, x3). Para rearmar solo tablas y gráficos sin resolver:
+  python escenarios.py --solo-resumen
+  Las corridas de 10 min de prueba están en respaldos/escenarios_10min_retirados.

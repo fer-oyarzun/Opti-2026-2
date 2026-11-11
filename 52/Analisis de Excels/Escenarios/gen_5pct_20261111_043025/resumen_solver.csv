@@ -1,0 +1,2 @@
+﻿estado_codigo,estado,hay_solucion,optimalidad_certificada_en_tolerancia,objetivo_M_CLP,objetivo_MM_CLP,objetivo_CLP,cota_M_CLP,cota_MM_CLP,gap_pct,tiempo_solver_s,limite_s,nodos,variables,binarias,enteras,restricciones
+2,OPTIMAL,True,True,85248620.09667519,85248.6200966752,85248620096.67519,85246871.67825171,85246.87167825171,0.002050963900050302,1334.1129999160767,1800.0,7332.0,28370,280,8640,10094

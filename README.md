@@ -8,3 +8,9 @@ Modelo MILP para la planificación óptima de infraestructura (centros de acopio
 1. Crear un entorno virtual e instalar dependencias:
    ```bash
    pip install -r requirements.txt
+## Entrega 4 (versión final)
+Todo lo de la E4 está en dos carpetas:
+- **`52/`**: contenido del ZIP de entrega (Script Python, Instancias Excel y Analisis de Excels con la corrida oficial y los 16 escenarios de sensibilidad).
+- **`informe/`**: main.tex, figuras y PDF compilado.
+
+Instrucciones de ejecución en `LEEME.txt`.

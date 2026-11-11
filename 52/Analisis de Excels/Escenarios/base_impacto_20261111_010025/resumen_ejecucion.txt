@@ -1,0 +1,27 @@
+==============================================================================
+RESULTADO DE LA OPTIMIZACIÓN GUROBI — SISTEMA VALORA MÁS (LEY REP DS N°8)
+==============================================================================
+Estado del solver           : OPTIMAL (código 2)
+Tiempo de optimización      : 1671.274 s (límite: 1800 s)
+Variables totales           : 28,370 (Binarias: 280, Enteras: 8,640, Continuas: 19,450)
+Restricciones totales       : 10,974 | Soluciones halladas: 10
+------------------------------------------------------------------------------
+VALOR ÓPTIMO DE LA FUNCIÓN OBJETIVO (Z*):
+  • En Miles de Pesos (M$)    : 108,312,945.08 M$
+  • En Millones de Pesos (MM$): 108,312.9451 MM$ (millones de CLP)
+  • En Pesos Chilenos (CLP)   : $108,312,945,080 CLP
+  • Cota Dual (Lower Bound)   : 108,302,850.20 M$ (108,302.8502 MM$)
+  • GAP de Optimalidad        : 0.0093%
+------------------------------------------------------------------------------
+DESGLOSE DE LA FUNCIÓN OBJETIVO POR COMPONENTE DE COSTO:
+  - IC_C inversion habilitacion centros   :     990,000.00 M$ |     990.00 MM$ | $     990,000,000 CLP ( 0.91%)
+  - IC_P inversion habilitacion lineas    :   2,040,000.00 M$ |   2,040.00 MM$ | $   2,040,000,000 CLP ( 1.88%)
+  - CF_C operacion fija centros           :  21,737,500.00 M$ |  21,737.50 MM$ | $  21,737,500,000 CLP (20.07%)
+  - CF_P operacion fija plantas           :  25,822,500.00 M$ |  25,822.50 MM$ | $  25,822,500,000 CLP (23.84%)
+  - CT_1 transporte region-acopio         :   6,953,071.77 M$ |   6,953.07 MM$ | $   6,953,071,775 CLP ( 6.42%)
+  - CT_2 transporte acopio-planta         :   6,094,522.34 M$ |   6,094.52 MM$ | $   6,094,522,336 CLP ( 5.63%)
+  - CT_3 transporte region-planta         :           0.00 M$ |       0.00 MM$ | $               0 CLP ( 0.00%)
+  - CP_V procesamiento                    :  40,639,146.34 M$ |  40,639.15 MM$ | $  40,639,146,340 CLP (37.52%)
+  - CA_S almacenaje                       :     294,312.35 M$ |     294.31 MM$ | $     294,312,347 CLP ( 0.27%)
+  - CP_M penalizaciones deficit           :   3,741,892.28 M$ |   3,741.89 MM$ | $   3,741,892,282 CLP ( 3.45%)
+==============================================================================

@@ -450,6 +450,112 @@ Los resultados son coherentes con los costos, capacidades y disponibilidades est
 El déficit de Atacama depende de la estimación y no prueba escasez física real. La explicación mediante flujos de faenas y contratistas omitidos es una hipótesis. La solución admite incumplimiento penalizado y cobertura por origen; no certifica cumplimiento normativo total.
 
 
+\section{Análisis de Sensibilidad}
+
+\subsection{Atributos Seleccionados}
+
+Se eligieron tres atributos inciertos que mueven la solución y, como chequeo, la restricción de flota R13 (Tabla~\ref{tab:atributos}). Cada escenario es una copia de \texttt{datos.xlsx} con un solo cambio (\texttt{Instancias Excel/Escenarios/}), resuelta con el mismo \texttt{main.py} y límite de $1.800\text{ s}$ mediante \texttt{escenarios.py}.
+
+\begin{table}[H]
+\centering
+\caption{Atributos analizados, justificación e instancias generadas.}
+\label{tab:atributos}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.6cm}@{}}
+\hline
+\textbf{Atributo} & \textbf{Por qué es relevante} & \textbf{Instancias} \\
+\hline
+Penalización $\mu^R_t,\mu^V_t,\mu^Q_t$ & Aproximación propia de la multa (Sección~5), no una tarifa legal; fija el costo de no cumplir. & $\times0,1$; $\times0,15$; $\times0,2$; $\times0,25$; $\times0,5$; $\times2$ \\
+Generación $g_{rt}$ & Es un pronóstico; define las metas y la capacidad a instalar. & Crec. 0\% y 5\% (base 2,5\%); nivel $-10\%$ \\
+Tarifas T1--T3 & Dependen del diésel; son el 11,6\% de $Z^*$. & $\times0,7$; $\times1,3$; $\times2$; $\times3$ \\
+\textit{Chequeo:} flota extrema (R13) & Restricción nueva de esta entrega; se fuerza su activación. & Sin camión de 25 t; $D\times0,5$ \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Resultados}
+
+\begin{table}[H]
+\centering
+\caption{Resultados por escenario (OPT: óptimo certificado; TL: límite de 1.800 s, gap entre paréntesis). La Figura~\ref{fig:sens} (Anexo~B) grafica $\Delta Z$.}
+\label{tab:sens}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{@{}lcrrc>{\raggedright\arraybackslash}Xr@{}}
+\hline
+\textbf{Escenario} & \textbf{Estado (gap \%)} & \textbf{$Z$ [MM\$]} & \textbf{$\Delta Z$} & \textbf{Líneas} & \textbf{Cambio en la red} & \textbf{t CO$_2$e} \\
+\hline
+Base & OPT (0,005) & 81.922,6 & -- & 7 & -- & 3.907 \\
+$\mu\times0,1$ & OPT (0,003) & 74.862,2 & $-8,6\%$ & 6 & Recolecta 33.868 t menos & 3.290 \\
+$\mu\times0,15$ & OPT (0,003) & 77.195,5 & $-5,8\%$ & 6 & Recolecta 20.537 t menos & 3.631 \\
+$\mu\times0,2$ & TL (0,68) & 78.813,2 & $-3,8\%$ & 7 & Recolecta 16.593 t menos & 3.912 \\
+$\mu\times0,25$ & TL (1,56) & 79.114,9 & $-3,4\%$ & 7 & Misma red & 3.899 \\
+$\mu\times0,5$ & TL (0,79) & 80.051,6 & $-2,3\%$ & 7 & Misma red & 3.918 \\
+$\mu\times2$ & TL (0,79) & 85.664,5 & $+4,6\%$ & 7 & Misma red & 3.908 \\
+Crec. 0\% & OPT (0,005) & 77.584,4 & $-5,3\%$ & 6 & Sin P04/P10; K3 P08 (2030) & 3.913 \\
+Crec. 5\% & OPT (0,002) & 85.248,6 & $+4,1\%$ & 7 & P10 en 2026; K2 P06 (2030) & 3.776 \\
+Nivel $-10\%$ & TL (0,97) & 74.209,1 & $-9,4\%$ & 6 & Sin P04/P10; K3 P08 (2030) & 3.499 \\
+Tarifas $\times0,7$ & OPT (0,004) & 79.070,5 & $-3,5\%$ & 7 & Misma red & 3.907 \\
+Tarifas $\times1,3$ & TL (1,05) & 84.774,7 & $+3,5\%$ & 7 & Misma red & 3.918 \\
+Tarifas $\times2$ & TL (0,34) & 90.861,2 & $+10,9\%$ & 7 & P02 K3; P10 2026; P04 K2 & 3.100 \\
+Tarifas $\times3$ & OPT (0,005) & 99.387,5 & $+21,3\%$ & 7 & Igual que tarifas $\times2$ & 3.062 \\
+Sin camión 25 t & TL (0,75) & 82.030,2 & $+0,13\%$ & 7 & Tope al 100\% & 4.266 \\
+$D\times0,5$ & OPT (0,008) & 81.947,5 & $+0,03\%$ & 7 & Tope al 98,8\% & 3.991 \\
+\hline
+\end{tabularx}
+\end{table}
+
+
+\subsection{Análisis de los Resultados}
+
+\textbf{Penalización: sobre un umbral, la red no cambia.} Entre $\times0,25$ y $\times2$ la solución es la red base y $Z = 78.180,6 + 3.742,0\,k$ [MM\$], con $k$ el multiplicador; la pendiente es el déficit inevitable de Atacama (Sección~7.2), así que subir la multa no compra más cumplimiento. Bajo $\times0,25$ conviene incumplir: con $\times0,2$ ($\mu^R=247\text{ M\$/ton}$) se dejan de recolectar $16.593$ t y K3 de P05 se posterga a 2028; con $\times0,1$, $33.868$ t. El umbral ($247$--$309\text{ M\$/ton}$) coincide con el costo medio ($247,6\text{ M\$/ton}$) y la multa actual lo supera unas cuatro veces, por lo que un error en $\mu$ solo cambia el monto pagado.
+
+\textbf{Generación: es el atributo que cambia el plan de inversión.} Sin crecimiento, o con un nivel inicial 10\% menor, no se abren P04 ni P10 y basta K3 en P08 Maule en 2030. Con 5\% anual, P10 se adelanta a 2026, se agrega K2 en P06 RM Sur en 2030 y P04 no se usa. El costo medio casi no cambia ($244,8$ a $249,3\text{ M\$/ton}$). Las líneas de 2026 se mantienen con baja generación; lo que depende del pronóstico es la expansión de 2029--2030.
+
+\textbf{Transporte: un alza moderada cambia el costo; una fuerte, la red.} Con $\pm30\%$ la red es la base y $Z$ cambia exactamente $\pm2.852$ MM\$. Con $\times2$ y $\times3$ el modelo descentraliza: P02 pasa a K3, P10 se adelanta a 2026 y P04 entra con K2 en 2030. Las plantas cuestan $1.960$ MM\$ más, pero los km bajan 21\% y $Z$ sube $8.939$ y $17.465$ MM\$, menos que los $9.507$ y $19.014$ de mantener la red base. Ni con $\times3$ se abren centros: la red la definen las plantas (84\% de $Z^*$).
+
+\textbf{Flota: R13 no es un cuello de botella.} Sin camiones de 25 t en las regiones extremas el tope se usa al 100\% (540 viajes de 15 t y 120 de 10 t) y $Z$ sube solo $0,13\%$, porque esas regiones mueven cerca del 3\% del NFU. El efecto que sí importa es ambiental: los km suben 14,7\% y las emisiones 9,2\% ($+358$ t CO$_2$e), algo que la FO no registra.
+
+\textbf{Calidad de las soluciones.} Ocho escenarios terminan por TL (gap 0,34\% a 1,56\%). En los que mantienen la red base el costo cambia de forma exacta con el parámetro y el gap viene de la cota inferior; en el resto es menor que el efecto medido, salvo sin camión de 25 t (gap $0,75\%$ mayor que $\Delta Z$), donde solo cabe afirmar que el efecto es pequeño.
+
+\section{Valorización del Impacto}
+
+El caso base es la práctica actual (Sección~2), con licitaciones región por región: cada región opera su centro de acopio todos los años ($y_{ct}=1$) y todo el NFU pasa por él ($z_{rpt}=0$). Se resolvió con el mismo modelo e instancia (OPT, gap $0,009\%$), con plantas y flota libres, de modo que la comparación aísla el valor de diseñar la red en conjunto. Ambos casos recolectan $330.813$ t con el mismo déficit en Atacama. Las emisiones se estimaron con los km de ida y vuelta, rendimientos de $4,0$, $3,5$ y $3,0$ km/L para camiones de 10, 15 y 25 t~\cite{pauta2025} y $2,74$ kg CO$_2$e/L de diésel~\cite{huellachile2024}.
+
+\begin{table}[H]
+\centering
+\caption{Caso base (red regional) frente a la solución del modelo, 2026--2030.}
+\label{tab:impacto}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrr@{}}
+\hline
+\textbf{Indicador} & \textbf{Caso base} & \textbf{Modelo} & \textbf{Diferencia} \\
+\hline
+Costo total $Z$ [MM\$] & 108.312,9 & 81.922,6 & $-26.390,3$ ($-24,4\%$) \\
+\quad Centros de acopio [MM\$] & 23.021,8 & 0,0 & $-23.021,8$ \\
+\quad Transporte [MM\$] & 13.047,6 & 9.506,9 & $-3.540,7$ ($-27,1\%$) \\
+\quad Plantas, procesamiento y penalización [MM\$] & 72.243,5 & 72.415,7 & $+172,2$ \\
+Viajes de camión [un] & 26.455 & 13.258 & $-13.197$ ($-49,9\%$) \\
+Distancia recorrida [miles de km] & 4.671 & 4.287 & $-384$ ($-8,2\%$) \\
+Emisiones [t CO$_2$e] & 4.262,1 & 3.907,4 & $-354,6$ ($-8,3\%$) \\
+\hline
+\end{tabular*}
+\end{table}
+
+El modelo ahorra $26.390$ MM\$ en el quinquenio (unos $5.278$ MM\$ al año, $80\text{ M\$/ton}$), y el 87\% viene de no operar centros de acopio. Pasar por un centro exige dos viajes por tonelada, lo que duplica los viajes, aunque los km bajan solo 8\% porque el tramo T1 es corto. Como el caso base es una versión estilizada de una red cuyo detalle no es público, el 24\% mide el valor de pasar de un diseño regional a uno integrado, no un ahorro contable exacto.
+
+\section{Conclusión}
+
+El modelo representa las decisiones que enfrenta Valora Más: qué líneas abrir y cuándo, cómo mover el NFU y en qué camiones, bajo las metas del DS8. Con el cobro por viaje y el tope de flota captura efectos reales, como ajustar la recolección a camiones completos. Su principal límite está en los datos y no en la estructura: capacidades, costos fijos y $\mu$ son estimaciones propias, y la generación es un pronóstico.
+
+La solución es implementable, porque usa tecnologías que ya operan en Chile, y robusta en lo que hay que decidir hoy: P05-K2 y P09-K3 se abren en 2026 en los 15 escenarios y P07-K2 en 14; cambian la tecnología de Antofagasta y el año de K3 en P05. La expansión de 2029--2030 depende de la generación y de las tarifas, por lo que conviene comprometer las líneas iniciales y volver a resolver el modelo cada año con la generación observada.
+
+Quedan tres lecciones contraintuitivas. No abrir centros de acopio, al revés de la práctica regional, baja el costo y las emisiones a la vez. Subir la multa no mejora el cumplimiento, porque el déficit restante (Atacama) viene de los datos y no de una decisión. Y enviar NFU 890 km de Coquimbo a Antofagasta es óptimo porque la capacidad central se agota.
+
+En cuanto a errores, en la E3 el transporte se cobraba por tonelada, sin viajes ni flota. Corregirlo agregó $8.640$ variables enteras y el modelo dejó de certificar el óptimo en 30 minutos, lo que obligó a agregar R14: cada mejora de realismo tiene un costo computacional que conviene medir. Como mejoras quedan modelar la generación con escenarios ponderados, incluir el costo de las emisiones en la FO y extender el horizonte más allá de 2030, cuando las plantas abiertas al final recién amortizan su inversión.
+
 \clearpage
 \section{Anexos}
 \begingroup
@@ -482,6 +588,56 @@ El archivo principal de parámetros, \texttt{datos.xlsx}, consolida toda la info
 
 \textbf{Hojas de Metadatos (\texttt{MD\_\allowbreak Bloque1} a \texttt{MD\_\allowbreak Bloque6}):} Repositorio de respaldo de las fuentes oficiales (INE, SII, MMA) y proyecciones. Documentan de dónde se extrajo cada costo y volumen garantizando la trazabilidad de los supuestos financieros y de infraestructura.
 
+
+
+\subsection*{Anexo B: Detalle de los Escenarios de Sensibilidad}
+Cada escenario se guarda en \texttt{Analisis de Excels/Escenarios/<escenario>\_<fecha>/} con los mismos archivos que la corrida oficial; las Tablas~\ref{tab:sens}, \ref{tab:impacto} y~\ref{tab:anexo_sens} salen de las hojas \texttt{Tabla5}, \texttt{Tabla6} y \texttt{Tabla7} de \texttt{Resumen\_Escenarios.xlsx}, que \texttt{escenarios.py} genera junto con las figuras. Las Figuras~\ref{fig:sens} y~\ref{fig:composicion} muestran la variación de $Z$ y la composición del costo por escenario.
+
+\begin{table}[H]
+\centering
+\caption{Métricas operativas por escenario (déficits y viajes en el quinquenio).}
+\label{tab:anexo_sens}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrrrrrrr@{}}
+\hline
+\textbf{Escenario} & \textbf{t [s]} & \textbf{Rec. [t]} & \textbf{$d^R$ [t]} & \textbf{$d^V$ [t]} & \textbf{$d^Q$ [t]} & \textbf{Viajes 10/15/25 t} & \textbf{km [miles]} & \textbf{Diésel [miles L]} & \textbf{Tope [\%]} \\
+\hline
+Base & 1.653 & 330.813 & 0 & 0 & 3.458 & 22 / 27 / 13.209 & 4.287 & 1.426 & 79,7 \\
+Caso base impacto & 1.671 & 330.813 & 0 & 0,1 & 3.457 & 38 / 29 / 26.388 & 4.671 & 1.556 & 88,4 \\
+$\mu\times0,1$ & 1.034 & 296.946 & 33.868 & 2.821 & 3.496 & 11 / 22 / 11.861 & 3.607 & 1.201 & 66,1 \\
+$\mu\times0,15$ & 1.534 & 310.276 & 20.537 & 2.821 & 4.555 & 11 / 24 / 12.393 & 3.981 & 1.325 & 66,1 \\
+$\mu\times0,2$ & 1.800 & 314.221 & 16.593 & 0 & 3.468 & 12 / 25 / 12.550 & 4.291 & 1.428 & 79,7 \\
+$\mu\times0,25$ & 1.800 & 330.813 & 0 & 0 & 3.468 & 19 / 28 / 13.209 & 4.277 & 1.423 & 83,3 \\
+$\mu\times0,5$ & 1.800 & 330.813 & 0 & 0 & 3.458 & 21 / 26 / 13.210 & 4.299 & 1.430 & 79,7 \\
+$\mu\times2$ & 1.800 & 330.813 & 0 & 0 & 3.457 & 24 / 26 / 13.209 & 4.289 & 1.426 & 79,7 \\
+Crec. 0\% & 999 & 314.298 & 0 & 0 & 3.289 & 24 / 12 / 12.556 & 4.294 & 1.428 & 76,0 \\
+Crec. 5\% & 1.334 & 348.186 & 0 & 0 & 3.635 & 14 / 15 / 13.914 & 4.139 & 1.378 & 78,4 \\
+Nivel $-10\%$ & 1.800 & 297.732 & 0 & 0 & 3.112 & 21 / 28 / 11.885 & 3.843 & 1.277 & 76,0 \\
+Tarifas $\times0,7$ & 1.346 & 330.813 & 0 & 0 & 3.458 & 22 / 27 / 13.209 & 4.287 & 1.426 & 79,7 \\
+Tarifas $\times1,3$ & 1.800 & 330.813 & 0 & 0 & 3.458 & 20 / 30 / 13.208 & 4.299 & 1.430 & 79,7 \\
+Tarifas $\times2$ & 1.800 & 330.813 & 0 & 0 & 3.458 & 7 / 26 / 13.215 & 3.400 & 1.131 & 65,9 \\
+Tarifas $\times3$ & 889 & 330.813 & 0 & 0 & 3.460 & 6 / 28 / 13.214 & 3.359 & 1.118 & 63,1 \\
+Sin camión 25 t & 1.800 & 330.813 & 0 & 0 & 3.458 & 120 / 540 / 12.862 & 4.916 & 1.557 & 100,0 \\
+$D\times0,5$ & 1.686 & 330.813 & 0 & 0 & 3.458 & 38 / 125 / 13.144 & 4.434 & 1.457 & 98,8 \\
+\hline
+\end{tabular*}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{grafico_sensibilidad_Z.png}
+\vspace{-3mm}
+\caption{Variación de $Z$ respecto de la corrida oficial por escenario.}
+\label{fig:sens}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{grafico_composicion_costos.png}
+\caption{Composición del costo total por escenario [MM\$].}
+\label{fig:composicion}
+\end{figure}
 
 \endgroup
 \newpage
@@ -541,6 +697,13 @@ Steer. Actualización de modelo de costos de transporte de carga para el anális
 
 \bibitem{paiscircular2026}
 Fabiola Venegas Órdenes. Nathalia Silva, de Valora Más, advierte que la falta de demanda para los neumáticos reciclados “es una bomba de tiempo” para la sostenibilidad de la REP. País Circular, mayo 2026. \url{https://www.paiscircular.cl/economia-circular/nathalia-silva-de-valora-mas-advierte-que-la-falta-de-demanda-para-los-neumaticos-reciclados-es-una-bomba-de-tiempo-para-la-sostenibilidad-de-la-ley-rep/}
+
+
+\bibitem{huellachile2024}
+Ministerio del Medio Ambiente, HuellaChile. Factores de emisión nivel básico, versión 3. Ministerio del Medio Ambiente de Chile, noviembre 2024. \url{https://huellachile.mma.gob.cl/wp-content/uploads/2024/11/HuellaChile-DCC-Factores-de-emision-nivel-basico_v3.pdf}
+
+\bibitem{pauta2025}
+Pauta. Gestión de flotas para transporte pesado: retos y oportunidades. Pauta.cl, 30 de septiembre de 2025. \url{https://www.pauta.cl/dato-en-pauta/2025/09/30/gestion-de-flotas-para-transporte-pesado-retos-y-oportunidades.html}
 
 \end{thebibliography}
 }
